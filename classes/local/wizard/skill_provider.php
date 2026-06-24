@@ -14,18 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace bookingextension_oneclick\local\wbagent;
+namespace bookingextension_oneclick\local\wizard;
 
-use bookingextension_agent\local\wbagent\interfaces\issue_code_provider_interface;
-use bookingextension_agent\local\wbagent\interfaces\skill_provider_interface;
-use bookingextension_oneclick\local\wbagent\skills\create_instance_skill;
-use bookingextension_oneclick\local\wbagent\skills\delete_instance_skill;
+use bookingextension_agent\local\wizard\interfaces\issue_code_provider_interface;
+use bookingextension_agent\local\wizard\interfaces\skill_provider_interface;
+use bookingextension_oneclick\local\wizard\skills\create_instance_skill;
+use bookingextension_oneclick\local\wizard\skills\delete_instance_skill;
 
 /**
  * Skill provider entrypoint for bookingextension_oneclick.
  *
  * The agent's skill_registry discovers this class as
- * \bookingextension_oneclick\local\wbagent\skill_provider and registers the
+ * \bookingextension_oneclick\local\wizard\skill_provider and registers the
  * skills it returns — no engine code changes required.
  *
  * @package    bookingextension_oneclick
@@ -45,7 +45,7 @@ class skill_provider implements skill_provider_interface {
     /**
      * Return the concrete skill instances contributed by this plugin.
      *
-     * @return array<int,\bookingextension_agent\local\wbagent\interfaces\skill_interface>
+     * @return array<int,\bookingextension_agent\local\wizard\interfaces\skill_interface>
      */
     public function get_skills(): array {
         return [

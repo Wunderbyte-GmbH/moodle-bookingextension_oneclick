@@ -17,11 +17,11 @@
 namespace bookingextension_oneclick;
 
 use advanced_testcase;
-use bookingextension_agent\local\wbagent\dto\skill_risk_class;
-use bookingextension_agent\local\wbagent\skill_contract_validator;
-use bookingextension_agent\local\wbagent\skill_registry_factory;
+use bookingextension_agent\local\wizard\dto\skill_risk_class;
+use bookingextension_agent\local\wizard\skill_contract_validator;
+use bookingextension_agent\local\wizard\skill_registry_factory;
 use bookingextension_oneclick\local\provisioner_client;
-use bookingextension_oneclick\local\wbagent\skills\delete_instance_skill;
+use bookingextension_oneclick\local\wizard\skills\delete_instance_skill;
 
 /**
  * Tests for the oneclick.delete_instance agent skill.
@@ -32,7 +32,7 @@ use bookingextension_oneclick\local\wbagent\skills\delete_instance_skill;
  *
  * @package    bookingextension_oneclick
  * @category   test
- * @covers     \bookingextension_oneclick\local\wbagent\skills\delete_instance_skill
+ * @covers     \bookingextension_oneclick\local\wizard\skills\delete_instance_skill
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

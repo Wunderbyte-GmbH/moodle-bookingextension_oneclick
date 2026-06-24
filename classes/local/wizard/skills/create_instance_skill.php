@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace bookingextension_oneclick\local\wbagent\skills;
+namespace bookingextension_oneclick\local\wizard\skills;
 
-use bookingextension_agent\local\wbagent\base_skill;
-use bookingextension_agent\local\wbagent\dto\skill_risk_class;
-use bookingextension_agent\local\wbagent\interfaces\skill_trigger_provider_interface;
-use bookingextension_agent\local\wbagent\services\preflight_result_v2;
+use bookingextension_agent\local\wizard\base_skill;
+use bookingextension_agent\local\wizard\dto\skill_risk_class;
+use bookingextension_agent\local\wizard\interfaces\skill_trigger_provider_interface;
+use bookingextension_agent\local\wizard\services\preflight_result_v2;
 use bookingextension_oneclick\local\instance_naming;
 use bookingextension_oneclick\local\job_repository;
 use bookingextension_oneclick\local\provisioner_client;
