@@ -24,11 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['bookingextension/oneclick:skill_oneclick_create_instance'] =
+$string['oneclick:skill_oneclick_create_instance'] =
     'Den Agenten-Skill nutzen, der eine persönliche Test-Moodle-/Booking-Instanz bereitstellt';
-$string['bookingextension/oneclick:skill_oneclick_delete_instance'] =
+$string['oneclick:skill_oneclick_delete_instance'] =
     'Den Agenten-Skill nutzen, der die eigene Test-Moodle-/Booking-Instanz löscht';
-$string['bookingextension/oneclick:viewjobstatus'] =
+$string['oneclick:viewjobstatus'] =
     'Den Status einer eigenen Ein-Klick-Testinstanz abfragen';
 $string['clarify_choose_instance'] =
     'Sie haben mehrere Instanzen. Welche möchten Sie löschen? Wählen Sie nach Adresse oder Auftrags-ID:';

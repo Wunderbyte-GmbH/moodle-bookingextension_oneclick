@@ -24,11 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['bookingextension/oneclick:skill_oneclick_create_instance'] =
+$string['oneclick:skill_oneclick_create_instance'] =
     'Use the agent skill that provisions a personal trial Moodle/Booking instance';
-$string['bookingextension/oneclick:skill_oneclick_delete_instance'] =
+$string['oneclick:skill_oneclick_delete_instance'] =
     'Use the agent skill that deletes the user\'s own trial Moodle/Booking instance';
-$string['bookingextension/oneclick:viewjobstatus'] =
+$string['oneclick:viewjobstatus'] =
     'Poll the status of an own one-click trial instance';
 $string['clarify_choose_instance'] =
     'You have more than one instance. Which one would you like to delete? Choose by its address or job id:';
