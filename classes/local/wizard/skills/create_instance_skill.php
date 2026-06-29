@@ -19,7 +19,6 @@ namespace bookingextension_oneclick\local\wizard\skills;
 use bookingextension_agent\local\wizard\base_skill;
 use bookingextension_agent\local\wizard\dto\skill_risk_class;
 use bookingextension_agent\local\wizard\interfaces\skill_trigger_provider_interface;
-use bookingextension_agent\local\wizard\services\preflight_result_v2;
 use bookingextension_oneclick\local\instance_naming;
 use bookingextension_oneclick\local\job_repository;
 use bookingextension_oneclick\local\provisioner_client;
@@ -201,18 +200,18 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
      * @param array $input
      * @param int $contextid
      * @param int $userid
-     * @return preflight_result_v2
+     * @return array{status:string,prepared_input:array,issues:array}
      */
-    public function preflight(array $input, int $contextid, int $userid): preflight_result_v2 {
+    protected function run_preflight(array $input, int $contextid, int $userid): array {
         global $DB, $USER;
 
         $structure = $this->check_structure($input);
         if (!($structure['valid'] ?? true)) {
-            return preflight_result_v2::invalid($this->issues_from_errors($structure['errors']));
+            return $this->invalid($this->issues_from_errors($structure['errors']));
         }
 
         if (!settings_helper::is_enabled() || !settings_helper::is_configured()) {
-            return preflight_result_v2::invalid($this->issues_from_errors([
+            return $this->invalid($this->issues_from_errors([
                 get_string('err_not_configured', 'bookingextension_oneclick'),
             ]));
         }
@@ -221,7 +220,7 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
         // $USER (the requester) instead of hitting the DB, and ask them to register first,
         // pointing them at the (configurable) URL.
         if (isguestuser() || strpos((string)$USER->username, 'guest_') === 0) {
-            return preflight_result_v2::invalid($this->issues_from_errors([
+            return $this->invalid($this->issues_from_errors([
                 get_string('err_guest_must_register', 'bookingextension_oneclick', settings_helper::get_register_url()),
             ]));
         }
@@ -230,7 +229,7 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
         // clearer message than a remote 422.
         $user = $DB->get_record('user', ['id' => $userid], 'id, email, confirmed', MUST_EXIST);
         if (empty($user->confirmed) || strpos((string)$user->email, '@') === false) {
-            return preflight_result_v2::invalid($this->issues_from_errors([
+            return $this->invalid($this->issues_from_errors([
                 get_string('err_email_not_verified', 'bookingextension_oneclick'),
             ]));
         }
@@ -240,13 +239,13 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
         // clarification), which also makes the list of templates visible to them.
         $templates = settings_helper::get_templates();
         if (empty($templates)) {
-            return preflight_result_v2::invalid($this->issues_from_errors([
+            return $this->invalid($this->issues_from_errors([
                 get_string('err_not_configured', 'bookingextension_oneclick'),
             ]));
         }
         $templateid = trim((string)($input['template_id'] ?? ''));
         if ($templateid === '' || !array_key_exists($templateid, $templates)) {
-            return preflight_result_v2::invalid($this->issues_from_errors([
+            return $this->invalid($this->issues_from_errors([
                 $this->build_template_clarification($templateid, $templates),
             ]));
         }
@@ -262,7 +261,7 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
             'target_host' => $naming['host'],
         ];
 
-        return preflight_result_v2::ok($prepared);
+        return $this->pass($prepared);
     }
 
     /**

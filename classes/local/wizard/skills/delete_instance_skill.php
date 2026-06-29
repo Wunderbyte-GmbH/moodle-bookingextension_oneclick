@@ -19,7 +19,6 @@ namespace bookingextension_oneclick\local\wizard\skills;
 use bookingextension_agent\local\wizard\base_skill;
 use bookingextension_agent\local\wizard\dto\skill_risk_class;
 use bookingextension_agent\local\wizard\interfaces\skill_trigger_provider_interface;
-use bookingextension_agent\local\wizard\services\preflight_result_v2;
 use bookingextension_oneclick\local\job_repository;
 use bookingextension_oneclick\local\provisioner_client;
 use bookingextension_oneclick\local\saml2_sp_registry;
@@ -185,11 +184,11 @@ class delete_instance_skill extends base_skill implements skill_trigger_provider
      * @param array $input
      * @param int $contextid
      * @param int $userid
-     * @return preflight_result_v2
+     * @return array{status:string,prepared_input:array,issues:array}
      */
-    public function preflight(array $input, int $contextid, int $userid): preflight_result_v2 {
+    protected function run_preflight(array $input, int $contextid, int $userid): array {
         if (!settings_helper::is_enabled() || !settings_helper::is_configured()) {
-            return preflight_result_v2::invalid($this->issues_from_errors([
+            return $this->invalid($this->issues_from_errors([
                 get_string('err_not_configured', 'bookingextension_oneclick'),
             ]));
         }
@@ -198,7 +197,7 @@ class delete_instance_skill extends base_skill implements skill_trigger_provider
         // else's instance (the provisioner enforces the same ownership rule).
         $list = $this->get_client()->list_jobs($userid);
         if (!$list['ok']) {
-            return preflight_result_v2::invalid($this->issues_from_errors([
+            return $this->invalid($this->issues_from_errors([
                 get_string('error_transport', 'bookingextension_oneclick'),
             ]));
         }
@@ -222,20 +221,20 @@ class delete_instance_skill extends base_skill implements skill_trigger_provider
         }
 
         if (empty($candidates)) {
-            return preflight_result_v2::invalid($this->issues_from_errors([
+            return $this->invalid($this->issues_from_errors([
                 get_string('err_no_instance_to_delete', 'bookingextension_oneclick'),
             ]));
         }
 
         if (count($candidates) > 1) {
             // Ambiguous: ask the user (or let the planner pick a job_id) which to delete.
-            return preflight_result_v2::invalid($this->issues_from_errors([
+            return $this->invalid($this->issues_from_errors([
                 $this->build_instance_clarification($candidates),
             ]));
         }
 
         $chosen = $candidates[0];
-        return preflight_result_v2::ok([
+        return $this->pass([
             'job_id' => $chosen['job_id'],
             'target_host' => $chosen['target_host'],
         ]);
