@@ -24,12 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['oneclick:skill_oneclick_create_instance'] =
-    'Den Agenten-Skill nutzen, der eine persönliche Test-Moodle-/Booking-Instanz bereitstellt';
-$string['oneclick:skill_oneclick_delete_instance'] =
-    'Den Agenten-Skill nutzen, der die eigene Test-Moodle-/Booking-Instanz löscht';
-$string['oneclick:viewjobstatus'] =
-    'Den Status einer eigenen Ein-Klick-Testinstanz abfragen';
 $string['clarify_choose_instance'] =
     'Sie haben mehrere Instanzen. Welche möchten Sie löschen? Wählen Sie nach Adresse oder Auftrags-ID:';
 $string['clarify_template_choose'] =
@@ -67,6 +61,12 @@ $string['msg_started'] =
     'OK, wir haben die Erstellung Ihrer Booking-Instanz gestartet. Das dauert etwa zwei Minuten.';
 $string['msg_under_review'] =
     'Ihre Anfrage zur Erstellung einer Booking-Instanz wurde empfangen und wartet nun auf Freigabe. Den Fortschritt sehen Sie hier.';
+$string['oneclick:skill_oneclick_create_instance'] =
+    'Den Agenten-Skill nutzen, der eine persönliche Test-Moodle-/Booking-Instanz bereitstellt';
+$string['oneclick:skill_oneclick_delete_instance'] =
+    'Den Agenten-Skill nutzen, der die eigene Test-Moodle-/Booking-Instanz löscht';
+$string['oneclick:viewjobstatus'] =
+    'Den Status einer eigenen Ein-Klick-Testinstanz abfragen';
 $string['pluginname'] = 'Booking KI: Ein-Klick-Instanz';
 $string['preview_almost_ready'] = 'Fast fertig…';
 $string['preview_cancelled_heading'] = 'Anfrage abgebrochen';

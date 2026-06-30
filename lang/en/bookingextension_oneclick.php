@@ -24,12 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['oneclick:skill_oneclick_create_instance'] =
-    'Use the agent skill that provisions a personal trial Moodle/Booking instance';
-$string['oneclick:skill_oneclick_delete_instance'] =
-    'Use the agent skill that deletes the user\'s own trial Moodle/Booking instance';
-$string['oneclick:viewjobstatus'] =
-    'Poll the status of an own one-click trial instance';
 $string['clarify_choose_instance'] =
     'You have more than one instance. Which one would you like to delete? Choose by its address or job id:';
 $string['clarify_template_choose'] =
@@ -67,6 +61,12 @@ $string['msg_started'] =
     'OK, we have started the creation of your Booking instance. This will take about two minutes.';
 $string['msg_under_review'] =
     'Your request to create a Booking instance has been received and is now awaiting approval. You will see progress here.';
+$string['oneclick:skill_oneclick_create_instance'] =
+    'Use the agent skill that provisions a personal trial Moodle/Booking instance';
+$string['oneclick:skill_oneclick_delete_instance'] =
+    'Use the agent skill that deletes the user\'s own trial Moodle/Booking instance';
+$string['oneclick:viewjobstatus'] =
+    'Poll the status of an own one-click trial instance';
 $string['pluginname'] = 'Booking AI: One-click instance';
 $string['preview_almost_ready'] = 'Almost ready…';
 $string['preview_cancelled_heading'] = 'Request cancelled';
