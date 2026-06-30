@@ -168,6 +168,29 @@ final class create_instance_skill_test extends advanced_testcase {
     }
 
     /**
+     * With exactly ONE configured template, a missing template_id is auto-resolved to it (no
+     * clarification): there is nothing to choose, so the user is not asked.
+     */
+    public function test_preflight_single_template_auto_picked(): void {
+        $this->setAdminUser();
+        set_config('enabled', 1, 'bookingextension_oneclick');
+        set_config('sharedsecret', 'topsecret', 'bookingextension_oneclick');
+        set_config('hostsuffix', 'sofabooking.com', 'bookingextension_oneclick');
+        set_config('templates', 'sport1, A sports club', 'bookingextension_oneclick');
+        $contextid = (int)context_system::instance()->id;
+
+        $result = (new create_instance_skill())->preflight(
+            ['sitename' => 'My Club'],
+            $contextid,
+            (int)$GLOBALS['USER']->id
+        );
+
+        $this->assertSame('pass', $result->status);
+        $this->assertSame('sport1', $result->preparedinput['template_id']);
+        $this->assertSame('My Club', $result->preparedinput['sitename']);
+    }
+
+    /**
      * Preflight hard-blocks when the plugin is not configured.
      */
     public function test_preflight_blocks_when_not_configured(): void {

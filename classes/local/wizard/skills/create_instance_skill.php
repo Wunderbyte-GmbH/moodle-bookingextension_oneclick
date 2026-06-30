@@ -172,8 +172,9 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
                     '- Set input.sitename to the name the user gave, verbatim (strip surrounding quotes).',
                     '- Only set input.template_id when the user named or clearly described which template/type '
                     . 'they want; match it against the templates listed in the skill description.',
-                    '- If the user did NOT indicate a template, OMIT input.template_id entirely — the skill will '
-                    . 'ask the user which template they want and show the available list. Do not guess a default.',
+                    '- If the user did NOT indicate a template, OMIT input.template_id entirely — the skill '
+                    . 'auto-uses the only configured template, or asks the user to choose (showing the list) '
+                    . 'when several exist. Do not guess a default.',
                     '- This provisions a real external instance, so the user is asked to confirm before it runs.',
                 ],
             ],
@@ -234,9 +235,11 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
             ]));
         }
 
-        // Resolve the template. Without a usable template_id we do NOT silently pick a
-        // default: we ask the user which configured template they want (preflight
-        // clarification), which also makes the list of templates visible to them.
+        // Resolve the template. template_id is optional input — the user does not have to name one.
+        // When none is given we still do NOT silently pick from several: if exactly ONE template is
+        // configured we use it automatically (there is nothing to choose), but with more than one we
+        // ask which they want (preflight clarification), which also makes the list visible to them.
+        // A template that WAS named but does not exist always triggers the list.
         $templates = settings_helper::get_templates();
         if (empty($templates)) {
             return $this->invalid($this->issues_from_errors([
@@ -244,7 +247,15 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
             ]));
         }
         $templateid = trim((string)($input['template_id'] ?? ''));
-        if ($templateid === '' || !array_key_exists($templateid, $templates)) {
+        if ($templateid === '') {
+            if (count($templates) === 1) {
+                $templateid = (string)array_key_first($templates);
+            } else {
+                return $this->invalid($this->issues_from_errors([
+                    $this->build_template_clarification('', $templates),
+                ]));
+            }
+        } else if (!array_key_exists($templateid, $templates)) {
             return $this->invalid($this->issues_from_errors([
                 $this->build_template_clarification($templateid, $templates),
             ]));
