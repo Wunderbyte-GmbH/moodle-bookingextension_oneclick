@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026062400;
-$plugin->release = 'v1.2.0';
+$plugin->version = 2026063000;
+$plugin->release = 'v1.2.1';
 $plugin->requires = 2024100700; // Moodle 4.5.
 $plugin->component = 'bookingextension_oneclick';
 $plugin->supported = [405, 501];
