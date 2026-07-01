@@ -94,26 +94,39 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
             : get_string('schema_template_intro', 'bookingextension_oneclick')
                 . ' ' . implode(' | ', $templatelines);
 
+        $properties = [
+            'sitename' => [
+                'type' => 'string',
+                'description' => 'The name the user wants for their own Moodle instance, verbatim '
+                    . '(e.g. "myname" in "create my own moodle instance with the name myname").',
+                'required' => true,
+            ],
+        ];
+        $inputfields = ['sitename'];
+
+        // Only surface template_id to the planner when there is an actual choice to make, i.e. more
+        // than one configured template. With zero or one template there is nothing to pick — preflight
+        // auto-resolves the single template (or blocks when none is configured) — so exposing the field
+        // only tempts the selection planner to ask the user for a template it does not need, which
+        // stalls the flow before preflight ever runs. With several templates the planner rightly offers
+        // the choice.
+        if (count($templates) > 1) {
+            $properties['template_id'] = [
+                'type' => 'string',
+                'description' => $templatedescription,
+                'required' => false,
+            ];
+            $inputfields[] = 'template_id';
+        }
+
         return [
             'version' => 1,
             'description' => settings_helper::get_skill_description(),
             'readonly' => $this->is_read_only(),
-            'properties' => [
-                'sitename' => [
-                    'type' => 'string',
-                    'description' => 'The name the user wants for their own Moodle instance, verbatim '
-                        . '(e.g. "myname" in "create my own moodle instance with the name myname").',
-                    'required' => true,
-                ],
-                'template_id' => [
-                    'type' => 'string',
-                    'description' => $templatedescription,
-                    'required' => false,
-                ],
-            ],
+            'properties' => $properties,
             'prompt_meta' => [
                 'intent' => 'Create a personal trial Moodle/Booking instance for the current user.',
-                'input_fields_for_prompt' => ['sitename', 'template_id'],
+                'input_fields_for_prompt' => $inputfields,
                 'anchor_fields' => ['sitename'],
                 'context_scopes' => ['module'],
             ],
@@ -126,10 +139,12 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
      * @return array<string,mixed>
      */
     public function get_example_input(): array {
-        $default = settings_helper::get_default_template_id();
+        $templates = settings_helper::get_templates();
         $example = ['sitename' => 'myname'];
-        if ($default !== '') {
-            $example['template_id'] = $default;
+        // Mirror get_schema(): only hint template_id when it is actually a choice (>1 template),
+        // so the routing example does not push the planner to gather a template it does not need.
+        if (count($templates) > 1) {
+            $example['template_id'] = (string)array_key_first($templates);
         }
         return $example;
     }

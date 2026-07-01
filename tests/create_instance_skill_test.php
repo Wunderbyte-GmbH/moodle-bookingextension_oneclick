@@ -87,6 +87,30 @@ final class create_instance_skill_test extends advanced_testcase {
     }
 
     /**
+     * template_id is hidden from the planner when there is nothing to choose (<= 1 template) and
+     * only exposed when several templates make it a real choice. This stops the selection planner
+     * from asking the user for a template the skill auto-resolves in preflight.
+     */
+    public function test_template_id_exposed_only_when_multiple(): void {
+        $skill = new create_instance_skill();
+
+        // Exactly one template: no template_id property, not a prompt field, not in the example.
+        set_config('templates', 'sport1, A sports club', 'bookingextension_oneclick');
+        $schema = $skill->get_schema();
+        $this->assertArrayNotHasKey('template_id', $schema['properties']);
+        $this->assertSame(['sitename'], $schema['prompt_meta']['input_fields_for_prompt']);
+        $this->assertArrayNotHasKey('template_id', $skill->get_example_input());
+
+        // Several templates: template_id becomes a visible, optional choice again.
+        set_config('templates', "sport1, A sports club\nteam2, A team site", 'bookingextension_oneclick');
+        $schema = $skill->get_schema();
+        $this->assertArrayHasKey('template_id', $schema['properties']);
+        $this->assertFalse($schema['properties']['template_id']['required']);
+        $this->assertContains('template_id', $schema['prompt_meta']['input_fields_for_prompt']);
+        $this->assertArrayHasKey('template_id', $skill->get_example_input());
+    }
+
+    /**
      * Structural validation requires a site name.
      */
     public function test_check_structure(): void {
