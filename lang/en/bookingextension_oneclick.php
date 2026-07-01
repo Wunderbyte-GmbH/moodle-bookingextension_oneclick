@@ -55,8 +55,14 @@ $string['error_rate_limited'] =
     'The provisioning queue is busy or you are within the cooldown window. Please try again later.';
 $string['error_transport'] = 'The provisioning service could not be reached. Please try again later.';
 $string['error_unavailable'] = 'The provisioning service is temporarily unavailable. Please try again later.';
+$string['list_skill_description'] =
+    'List the current user\'s own trial Moodle/Booking instances and their status. Read-only: it only '
+    . 'reports the user\'s existing instances and changes nothing.';
 $string['msg_delete_started'] =
     'OK, we have started deleting your Booking instance. It will be removed shortly.';
+$string['msg_instances_listed'] = 'Here are your instances ({$a}):';
+$string['msg_no_instances'] =
+    'You do not have any Booking instances yet. You can ask me to create one.';
 $string['msg_started'] =
     'OK, we have started the creation of your Booking instance. This will take about two minutes.';
 $string['msg_under_review'] =
@@ -65,6 +71,8 @@ $string['oneclick:skill_oneclick_create_instance'] =
     'Use the agent skill that provisions a personal trial Moodle/Booking instance';
 $string['oneclick:skill_oneclick_delete_instance'] =
     'Use the agent skill that deletes the user\'s own trial Moodle/Booking instance';
+$string['oneclick:skill_oneclick_list_instances'] =
+    'Use the agent skill that lists the user\'s own trial Moodle/Booking instances';
 $string['oneclick:viewjobstatus'] =
     'Poll the status of an own one-click trial instance';
 $string['pluginname'] = 'Booking AI: One-click instance';

@@ -48,6 +48,16 @@ $capabilities = [
         ],
     ],
 
+    // Per-skill capability gating the agent skill oneclick.list_instances (read-only).
+    // The name is derived by the agent as <component>:skill_<normalized skill name>.
+    'bookingextension/oneclick:skill_oneclick_list_instances' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+
     // Lets the requester poll the status of their own provisioning job.
     'bookingextension/oneclick:viewjobstatus' => [
         'captype' => 'read',

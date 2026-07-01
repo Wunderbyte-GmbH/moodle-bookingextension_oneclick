@@ -20,6 +20,7 @@ use bookingextension_agent\local\wizard\interfaces\issue_code_provider_interface
 use bookingextension_agent\local\wizard\interfaces\skill_provider_interface;
 use bookingextension_oneclick\local\wizard\skills\create_instance_skill;
 use bookingextension_oneclick\local\wizard\skills\delete_instance_skill;
+use bookingextension_oneclick\local\wizard\skills\list_instances_skill;
 
 /**
  * Skill provider entrypoint for bookingextension_oneclick.
@@ -51,6 +52,7 @@ class skill_provider implements skill_provider_interface {
         return [
             new create_instance_skill(),
             new delete_instance_skill(),
+            new list_instances_skill(),
         ];
     }
 

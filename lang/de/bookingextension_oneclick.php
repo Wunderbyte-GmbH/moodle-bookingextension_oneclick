@@ -55,8 +55,14 @@ $string['error_rate_limited'] =
     'Die Provisionierungs-Warteschlange ist ausgelastet oder Sie befinden sich in der Abklingphase. Bitte später erneut versuchen.';
 $string['error_transport'] = 'Der Provisionierungsdienst konnte nicht erreicht werden. Bitte versuchen Sie es später erneut.';
 $string['error_unavailable'] = 'Der Provisionierungsdienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.';
+$string['list_skill_description'] =
+    'Die eigenen Test-Moodle-/Booking-Instanzen des Benutzers samt Status auflisten. Nur lesend: es werden '
+    . 'ausschließlich die vorhandenen Instanzen angezeigt, nichts verändert.';
 $string['msg_delete_started'] =
     'OK, wir haben das Löschen Ihrer Booking-Instanz gestartet. Sie wird in Kürze entfernt.';
+$string['msg_instances_listed'] = 'Hier sind Ihre Instanzen ({$a}):';
+$string['msg_no_instances'] =
+    'Sie haben noch keine Booking-Instanzen. Sie können mich bitten, eine zu erstellen.';
 $string['msg_started'] =
     'OK, wir haben die Erstellung Ihrer Booking-Instanz gestartet. Das dauert etwa zwei Minuten.';
 $string['msg_under_review'] =
@@ -65,6 +71,8 @@ $string['oneclick:skill_oneclick_create_instance'] =
     'Den Agenten-Skill nutzen, der eine persönliche Test-Moodle-/Booking-Instanz bereitstellt';
 $string['oneclick:skill_oneclick_delete_instance'] =
     'Den Agenten-Skill nutzen, der die eigene Test-Moodle-/Booking-Instanz löscht';
+$string['oneclick:skill_oneclick_list_instances'] =
+    'Den Agenten-Skill nutzen, der die eigenen Test-Moodle-/Booking-Instanzen auflistet';
 $string['oneclick:viewjobstatus'] =
     'Den Status einer eigenen Ein-Klick-Testinstanz abfragen';
 $string['pluginname'] = 'Booking KI: Ein-Klick-Instanz';
