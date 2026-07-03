@@ -24,6 +24,31 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['claim_continue_message'] =
+    'Meine E-Mail-Adresse ist jetzt gesetzt. Bitte erstelle meine Instanz „{$a}“ jetzt.';
+$string['claim_email_label'] = 'Ihre E-Mail-Adresse';
+$string['claim_err_email_taken'] =
+    'Diese E-Mail-Adresse gehört bereits zu einem Konto. Bitte melden Sie sich stattdessen an: {$a}';
+$string['claim_err_invalid_email'] = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+$string['claim_err_not_guest'] =
+    'Ihr Konto benötigt diesen Schritt nicht. Bitten Sie einfach erneut um die Erstellung Ihrer Instanz.';
+$string['claim_error_generic'] = 'Das hat leider nicht geklappt. Bitte versuchen Sie es erneut.';
+$string['claim_heading'] = 'Fast geschafft!';
+$string['claim_intro'] =
+    'Um „{$a}“ zu erstellen, brauchen wir nur eine E-Mail-Adresse, damit Sie den Zugang zu Ihrer Instanz behalten. '
+    . 'Die Bestätigung erfolgt später.';
+$string['claim_login_button'] = 'Anmelden oder registrieren';
+$string['claim_or'] = 'oder';
+$string['claim_sending'] = 'Wird gespeichert…';
+$string['claim_submit'] = 'Diese E-Mail verwenden';
+$string['claim_success'] =
+    'Ihre E-Mail-Adresse wurde gespeichert. Sie erhalten später eine E-Mail, um ein Passwort zu setzen.';
+$string['claim_success_heading'] = 'E-Mail gespeichert!';
+$string['claim_success_intro'] =
+    'Sie erhalten später eine E-Mail, um ein Passwort zu setzen. Ihre Anfrage läuft jetzt automatisch im Chat weiter.';
+$string['claim_success_intro_manual'] =
+    'Sie erhalten später eine E-Mail, um ein Passwort zu setzen. Bitten Sie jetzt einfach im Chat erneut um die '
+    . 'Erstellung Ihrer Instanz.';
 $string['clarify_choose_instance'] =
     'Sie haben mehrere Instanzen. Welche möchten Sie löschen? Wählen Sie nach Adresse oder Auftrags-ID:';
 $string['clarify_template_choose'] =
@@ -58,6 +83,9 @@ $string['error_unavailable'] = 'Der Provisionierungsdienst ist vorübergehend ni
 $string['list_skill_description'] =
     'Die eigenen Test-Moodle-/Booking-Instanzen des Benutzers samt Status auflisten. Nur lesend: es werden '
     . 'ausschließlich die vorhandenen Instanzen angezeigt, nichts verändert.';
+$string['msg_claim_required'] =
+    'Fast geschafft! Um Ihre Instanz zu erstellen, geben Sie bitte Ihre E-Mail-Adresse im Seitenbereich ein — '
+    . 'oder melden Sie sich an.';
 $string['msg_delete_started'] =
     'OK, wir haben das Löschen Ihrer Booking-Instanz gestartet. Sie wird in Kürze entfernt.';
 $string['msg_instances_listed'] = 'Hier sind Ihre Instanzen ({$a}):';
@@ -108,6 +136,8 @@ $string['privacy:metadata:oneclick_provisioner:request_ip'] = 'Die Anfrage-IP wi
 $string['privacy:metadata:oneclick_provisioner:requester_email'] = 'Die E-Mail-Adresse wird für Limits und Benachrichtigung gesendet.';
 $string['privacy:metadata:oneclick_provisioner:requester_user_id'] = 'Die Nutzer-ID wird zur Identifikation gesendet.';
 $string['privacy:metadata:oneclick_provisioner:target_host'] = 'Der angeforderte öffentliche Hostname wird gesendet.';
+$string['privacy:metadata:preference:email_unverified'] =
+    'Ob die beim Übernehmen eines Gastkontos angegebene E-Mail-Adresse noch unbestätigt ist.';
 $string['schema_template_intro'] = 'Wählen Sie die Vorlagen-ID, die am besten zum Zweck passt. Verfügbare Vorlagen:';
 $string['schema_template_none'] = 'Es sind noch keine Vorlagen konfiguriert; die Administration muss zuerst mindestens eine hinzufügen, bevor Instanzen erstellt werden können.';
 $string['setting_baseurl'] = 'Basis-URL des Provisionierers';

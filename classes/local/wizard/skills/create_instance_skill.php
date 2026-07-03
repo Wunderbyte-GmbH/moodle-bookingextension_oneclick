@@ -19,6 +19,8 @@ namespace bookingextension_oneclick\local\wizard\skills;
 use bookingextension_agent\local\wizard\base_skill;
 use bookingextension_agent\local\wizard\dto\skill_risk_class;
 use bookingextension_agent\local\wizard\interfaces\skill_trigger_provider_interface;
+use bookingextension_agent\local\wizard\services\localized_string_service;
+use bookingextension_oneclick\local\guest_account_helper;
 use bookingextension_oneclick\local\instance_naming;
 use bookingextension_oneclick\local\job_repository;
 use bookingextension_oneclick\local\provisioner_client;
@@ -221,6 +223,12 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
     protected function run_preflight(array $input, int $contextid, int $userid): array {
         global $DB, $USER;
 
+        // Bind every user-facing clarification to the CONVERSATION language (the framework
+        // injects outputlang into the input), not the requester's UI language: a guest
+        // account carries the site default language, which broke German conversations with
+        // English clarifications — and a foreign-language turn destabilizes the planner.
+        $lang = $this->resolve_output_language($input);
+
         $structure = $this->check_structure($input);
         if (!($structure['valid'] ?? true)) {
             return $this->invalid($this->issues_from_errors($structure['errors']));
@@ -228,16 +236,33 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
 
         if (!settings_helper::is_enabled() || !settings_helper::is_configured()) {
             return $this->invalid($this->issues_from_errors([
-                get_string('err_not_configured', 'bookingextension_oneclick'),
+                $this->str('err_not_configured', null, $lang),
             ]));
         }
 
         // A guest has no real, verified email, which /spawn requires. Read the in-memory
-        // $USER (the requester) instead of hitting the DB, and ask them to register first,
-        // pointing them at the (configurable) URL.
-        if (isguestuser() || strpos((string)$USER->username, 'guest_') === 0) {
+        // $USER (the requester) instead of hitting the DB. The shared site guest can only
+        // register; a temporary shopping_cart guest-checkout account can instead be
+        // "claimed" with just an email: the clarification carries the claim form as a
+        // preview block (engine preview source C), so it opens in the side panel with the
+        // FIRST request — before any confirmation. After a successful claim the form
+        // re-issues the request automatically and this gate passes.
+        if (isguestuser()) {
             return $this->invalid($this->issues_from_errors([
-                get_string('err_guest_must_register', 'bookingextension_oneclick', settings_helper::get_register_url()),
+                $this->str('err_guest_must_register', settings_helper::get_register_url(), $lang),
+            ]));
+        }
+        if (strpos((string)$USER->username, 'guest_') === 0) {
+            if (guest_account_helper::can_claim($userid)) {
+                return $this->invalid([[
+                    'code' => 'VALIDATION_ERROR',
+                    'severity' => 'needs_clarification',
+                    'message' => $this->str('msg_claim_required', null, $lang),
+                    'preview' => $this->build_claim_preview(trim((string)($input['sitename'] ?? '')), $lang),
+                ]]);
+            }
+            return $this->invalid($this->issues_from_errors([
+                $this->str('err_guest_must_register', settings_helper::get_register_url(), $lang),
             ]));
         }
 
@@ -246,7 +271,7 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
         $user = $DB->get_record('user', ['id' => $userid], 'id, email, confirmed', MUST_EXIST);
         if (empty($user->confirmed) || strpos((string)$user->email, '@') === false) {
             return $this->invalid($this->issues_from_errors([
-                get_string('err_email_not_verified', 'bookingextension_oneclick'),
+                $this->str('err_email_not_verified', null, $lang),
             ]));
         }
 
@@ -258,7 +283,7 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
         $templates = settings_helper::get_templates();
         if (empty($templates)) {
             return $this->invalid($this->issues_from_errors([
-                get_string('err_not_configured', 'bookingextension_oneclick'),
+                $this->str('err_not_configured', null, $lang),
             ]));
         }
         $templateid = trim((string)($input['template_id'] ?? ''));
@@ -267,12 +292,12 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
                 $templateid = (string)array_key_first($templates);
             } else {
                 return $this->invalid($this->issues_from_errors([
-                    $this->build_template_clarification('', $templates),
+                    $this->build_template_clarification('', $templates, $lang),
                 ]));
             }
         } else if (!array_key_exists($templateid, $templates)) {
             return $this->invalid($this->issues_from_errors([
-                $this->build_template_clarification($templateid, $templates),
+                $this->build_template_clarification($templateid, $templates, $lang),
             ]));
         }
 
@@ -285,6 +310,9 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
             'target_release' => $naming['release'],
             'target_namespace' => $naming['namespace'],
             'target_host' => $naming['host'],
+            // Framework-internal (hidden from the confirmation preview): keeps execute-side
+            // messages in the conversation language too.
+            'outputlang' => $lang,
         ];
 
         return $this->pass($prepared);
@@ -305,11 +333,24 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
             return $this->error_result(get_string('err_not_configured', 'bookingextension_oneclick'));
         }
 
+        // Defensive net: since the claim form ships with the preflight clarification
+        // (preview source C), an unclaimed guest normally never reaches execute anymore.
+        // A stale queue item prepared under an older version can still carry the flag,
+        // and a guest account state can change between preflight and confirm — in both
+        // cases short-circuit into the claim result instead of calling /spawn.
+        if (!empty($preparedinput['guest_claim_required']) && guest_account_helper::can_claim($userid)) {
+            return $this->build_claim_required_result($preparedinput);
+        }
+
         $user = $DB->get_record('user', ['id' => $userid], 'id, email, confirmed', MUST_EXIST);
 
         $payload = [
             'requester_user_id' => (int)$userid,
             'requester_email' => \core_text::strtolower(trim((string)$user->email)),
+            // The provisioner hard-rejects unverified requesters (422), so a claimed guest
+            // email must not flip this to false: ownership is proven later via the
+            // set-password email of the conversion. The claim preference stays recorded
+            // (see guest_account_helper) for auditing and a future re-verification flow.
             'requester_email_verified' => !empty($user->confirmed),
             'request_ip' => (string)getremoteaddr(),
             'template_id' => (string)$preparedinput['template_id'],
@@ -392,7 +433,8 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
     }
 
     /**
-     * Provide the live provisioning preview (spinner + countdown + status poll).
+     * Provide the live provisioning preview (spinner + countdown + status poll),
+     * or the email-claim form when a guest-checkout user must claim their account first.
      *
      * @param array $resultentry Executed skill result entry.
      * @param int $contextid
@@ -400,6 +442,13 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
      * @return array{type:string,js_module:string,payload:array}|null
      */
     public function get_result_preview(array $resultentry, int $contextid, int $userid): ?array {
+        if (!empty($resultentry['oneclick_claim'])) {
+            return $this->build_claim_preview(
+                (string)($resultentry['oneclick_sitename'] ?? ''),
+                (string)($resultentry['oneclick_lang'] ?? '')
+            );
+        }
+
         $jobid = (int)($resultentry['oneclick_jobid'] ?? 0);
         if ($jobid <= 0) {
             return null;
@@ -414,6 +463,123 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
                 'review' => (bool)($resultentry['oneclick_review'] ?? false),
                 'eta' => (int)($resultentry['oneclick_eta'] ?? self::ETA_SECONDS),
             ],
+        ];
+    }
+
+    /**
+     * Build the self-contained email-claim preview block.
+     *
+     * Shipped through two engine channels with identical shape: as `preview` on the
+     * preflight clarification issue (source C — the form opens with the first request)
+     * and via get_result_preview() on the defensive execute short-circuit (source A).
+     * The claim webservice + the AMD module (guest_claim_preview) do the rest; the
+     * email travels form → webservice and never enters the chat, where the privacy
+     * anonymizer would redact it.
+     *
+     * All form texts AND the automatic continuation message are rendered server-side in
+     * the CONVERSATION language and shipped in the payload: the client's get_string only
+     * knows the requester's UI language (for a guest account: the site default), which
+     * broke German conversations with English texts — and a foreign-language continuation
+     * message destabilizes the planner (SYNC_LANG follows the latest user message).
+     *
+     * @param string $sitename The instance name the user asked for (for the form text
+     *     and the automatic continuation message).
+     * @param string $lang The conversation output language ('' = current language).
+     * @return array{type:string,js_module:string,payload:array}
+     */
+    private function build_claim_preview(string $sitename, string $lang): array {
+        return [
+            'type' => 'oneclick_guest_claim',
+            'js_module' => 'bookingextension_oneclick/guest_claim_preview',
+            'payload' => [
+                'sitename' => $sitename,
+                'registerurl' => settings_helper::get_register_url(),
+                'strings' => [
+                    'heading' => $this->str('claim_heading', null, $lang),
+                    'intro' => $this->str('claim_intro', $sitename, $lang),
+                    'emailLabel' => $this->str('claim_email_label', null, $lang),
+                    'submit' => $this->str('claim_submit', null, $lang),
+                    'sending' => $this->str('claim_sending', null, $lang),
+                    'or' => $this->str('claim_or', null, $lang),
+                    'loginButton' => $this->str('claim_login_button', null, $lang),
+                    'successHeading' => $this->str('claim_success_heading', null, $lang),
+                    'successIntro' => $this->str('claim_success_intro', null, $lang),
+                    'successIntroManual' => $this->str('claim_success_intro_manual', null, $lang),
+                    'errorGeneric' => $this->str('claim_error_generic', null, $lang),
+                    'continueMessage' => $this->str('claim_continue_message', $sitename, $lang),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Resolve the conversation output language from framework-injected input keys.
+     *
+     * Mirrors core_skill_base::get_output_language() (this skill extends base_skill, so
+     * the helper is not inherited). Empty string = keep the current language.
+     *
+     * @param array $input
+     * @return string
+     */
+    private function resolve_output_language(array $input): string {
+        foreach (['outputlang', 'user_lang', 'lang'] as $key) {
+            $value = trim((string)($input[$key] ?? ''));
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Resolve a plugin string in the requested (conversation) language.
+     *
+     * @param string $identifier
+     * @param mixed $a
+     * @param string $lang
+     * @return string
+     */
+    private function str(string $identifier, $a, string $lang): string {
+        return localized_string_service::get($identifier, 'bookingextension_oneclick', $a, $lang);
+    }
+
+    /**
+     * Build the result telling a guest-checkout user to claim their account first.
+     *
+     * Deliberately an honest non-success: nothing was provisioned. The observation
+     * steers the synchronizer, the preview block opens the email-claim form in the
+     * side panel, and the email travels form → webservice — never through the chat,
+     * where the privacy anonymizer would redact it before the LLM ever saw it.
+     *
+     * @param array $preparedinput Prepared input from preflight().
+     * @return array<string,mixed>
+     */
+    private function build_claim_required_result(array $preparedinput): array {
+        $sitename = (string)($preparedinput['sitename'] ?? '');
+        $lang = $this->resolve_output_language($preparedinput);
+        $registerurl = settings_helper::get_register_url();
+        $usermessage = $this->str('msg_claim_required', null, $lang);
+
+        $observation = implode("\n", [
+            'Trial instance NOT created yet: the user is on a temporary guest account without a real email address.',
+            'An email form has been opened in the side panel. Tell the user to either enter their email address there',
+            '(after submitting, the request continues automatically) or log in / register (' . $registerurl . ').',
+            'Do NOT ask the user to type their email address into this chat.',
+            'sitename: ' . $sitename,
+        ]);
+
+        return [
+            'status' => 'error',
+            'detail' => $usermessage,
+            'usermessage' => $usermessage,
+            'resultid' => null,
+            // Fields read by get_result_preview() to build the claim side preview.
+            'oneclick_claim' => true,
+            'oneclick_sitename' => $sitename,
+            'oneclick_registerurl' => $registerurl,
+            'oneclick_lang' => $lang,
+            'observation_full' => $observation,
         ];
     }
 
@@ -517,9 +683,10 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
      *
      * @param string $given The template_id the user/LLM supplied (empty if none).
      * @param array<string,string> $templates Configured id => description map.
+     * @param string $lang The conversation output language ('' = current language).
      * @return string
      */
-    private function build_template_clarification(string $given, array $templates): string {
+    private function build_template_clarification(string $given, array $templates, string $lang): string {
         $lines = [];
         foreach ($templates as $id => $description) {
             $lines[] = trim($description) !== '' ? '- ' . $id . ' — ' . $description : '- ' . $id;
@@ -527,8 +694,8 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
 
         // Unknown id supplied vs nothing supplied: lead with the right prompt.
         $intro = $given !== ''
-            ? get_string('clarify_template_unknown', 'bookingextension_oneclick', $given)
-            : get_string('clarify_template_choose', 'bookingextension_oneclick');
+            ? $this->str('clarify_template_unknown', $given, $lang)
+            : $this->str('clarify_template_choose', null, $lang);
 
         return $intro . "\n" . implode("\n", $lines);
     }

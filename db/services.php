@@ -25,6 +25,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
+    'bookingextension_oneclick_claim_guest_email' => [
+        'classname' => 'bookingextension_oneclick\\external\\claim_guest_email',
+        'methodname' => 'execute',
+        'description' => 'Set a real email address on the calling user\'s own temporary guest-checkout account '
+            . 'so trial-instance creation can proceed. Strictly self-service.',
+        'type' => 'write',
+        'ajax' => 1,
+    ],
     'bookingextension_oneclick_get_job_status' => [
         'classname' => 'bookingextension_oneclick\\external\\get_job_status',
         'methodname' => 'execute',

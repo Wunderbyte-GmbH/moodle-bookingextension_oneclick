@@ -251,6 +251,126 @@ final class create_instance_skill_test extends advanced_testcase {
     }
 
     /**
+     * Create a shopping_cart-style guest-checkout user (user record + tracking row).
+     *
+     * @return \stdClass
+     */
+    private function create_guest_checkout_user(): \stdClass {
+        global $DB;
+
+        $uniqid = md5(uniqid('test_', true));
+        $user = $this->getDataGenerator()->create_user([
+            'username' => 'guest_checkout_' . $uniqid,
+            'email' => 'guest_' . $uniqid . '@noreply.local',
+            'firstname' => 'Guest',
+            'lastname' => 'User',
+            'confirmed' => 1,
+        ]);
+        $DB->insert_record('local_shopping_cart_guestusers', (object)[
+            'userid' => $user->id,
+            'timecreated' => time(),
+        ]);
+
+        return $user;
+    }
+
+    /**
+     * A claimable guest-checkout user gets a claim clarification whose issue carries the
+     * email-claim form as a preview block (engine preview source C): the form opens in the
+     * side panel with the FIRST request, before any confirmation.
+     */
+    public function test_preflight_guest_checkout_user_gets_claim_clarification_with_preview(): void {
+        if (!\bookingextension_oneclick\local\guest_account_helper::shopping_cart_available()) {
+            $this->markTestSkipped('local_shopping_cart is not installed.');
+        }
+        $this->configure();
+        $guest = $this->create_guest_checkout_user();
+        $this->setUser($guest);
+        $contextid = (int)context_system::instance()->id;
+
+        $result = (new create_instance_skill())->preflight(
+            ['sitename' => 'My Club', 'template_id' => 'team2'],
+            $contextid,
+            (int)$guest->id
+        );
+
+        $this->assertSame('hard_block', $result->status);
+        $issue = $result->issues[0];
+        $this->assertSame('needs_clarification', $issue['severity']);
+        $this->assertSame(
+            get_string('msg_claim_required', 'bookingextension_oneclick'),
+            $issue['message']
+        );
+        $this->assertSame('oneclick_guest_claim', $issue['preview']['type']);
+        $this->assertSame('bookingextension_oneclick/guest_claim_preview', $issue['preview']['js_module']);
+        $this->assertSame('My Club', $issue['preview']['payload']['sitename']);
+        $this->assertNotEmpty($issue['preview']['payload']['registerurl']);
+
+        // All form texts + the continuation message ship server-rendered in the
+        // conversation language (the client only knows the UI language).
+        $strings = $issue['preview']['payload']['strings'];
+        foreach (['heading', 'intro', 'emailLabel', 'submit', 'successIntro', 'continueMessage'] as $key) {
+            $this->assertNotEmpty($strings[$key] ?? '', "Claim preview payload must carry string '{$key}'.");
+        }
+        $this->assertStringContainsString('My Club', $strings['continueMessage']);
+    }
+
+    /**
+     * A guest_-prefixed username WITHOUT a claimable shopping_cart account keeps the
+     * original behaviour: blocked with the register link.
+     */
+    public function test_preflight_unclaimable_guest_prefix_blocked(): void {
+        $this->configure();
+        $user = $this->getDataGenerator()->create_user(['username' => 'guest_someone']);
+        $this->setUser($user);
+        $contextid = (int)context_system::instance()->id;
+
+        $result = (new create_instance_skill())->preflight(
+            ['sitename' => 'My Club', 'template_id' => 'team2'],
+            $contextid,
+            (int)$user->id
+        );
+
+        $this->assertSame('hard_block', $result->status);
+        $this->assertStringContainsString('register', $result->issues[0]['message']);
+    }
+
+    /**
+     * execute() short-circuits a flagged guest into the claim result: honest error,
+     * claim preview fields, no network call.
+     */
+    public function test_execute_claim_short_circuits(): void {
+        if (!\bookingextension_oneclick\local\guest_account_helper::shopping_cart_available()) {
+            $this->markTestSkipped('local_shopping_cart is not installed.');
+        }
+        $this->configure();
+        $guest = $this->create_guest_checkout_user();
+        $this->setUser($guest);
+        $contextid = (int)context_system::instance()->id;
+
+        $skill = new create_instance_skill();
+        $result = $skill->execute(
+            ['sitename' => 'My Club', 'template_id' => 'team2', 'target_release' => 'trial-x',
+                'target_namespace' => 'trial-x', 'target_host' => 'trial-x.sofabooking.com',
+                'guest_claim_required' => true],
+            $contextid,
+            (int)$guest->id
+        );
+
+        $this->assertSame('error', $result['status']);
+        $this->assertTrue((bool)$result['oneclick_claim']);
+        $this->assertStringContainsString('side panel', $result['observation_full']);
+
+        // The claim result maps to the email-claim preview module.
+        $preview = $skill->get_result_preview($result, $contextid, (int)$guest->id);
+        $this->assertIsArray($preview);
+        $this->assertSame('oneclick_guest_claim', $preview['type']);
+        $this->assertSame('bookingextension_oneclick/guest_claim_preview', $preview['js_module']);
+        $this->assertSame('My Club', $preview['payload']['sitename']);
+        $this->assertNotEmpty($preview['payload']['registerurl']);
+    }
+
+    /**
      * execute() guards on missing configuration without reaching the network.
      */
     public function test_execute_guard_when_not_configured(): void {

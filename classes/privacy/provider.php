@@ -25,6 +25,7 @@ use core_privacy\local\request\contextlist;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
+use bookingextension_oneclick\local\guest_account_helper;
 use bookingextension_oneclick\local\job_repository;
 
 /**
@@ -41,7 +42,8 @@ use bookingextension_oneclick\local\job_repository;
 class provider implements
     \core_privacy\local\metadata\provider,
     \core_privacy\local\request\core_userlist_provider,
-    \core_privacy\local\request\plugin\provider {
+    \core_privacy\local\request\plugin\provider,
+    \core_privacy\local\request\user_preference_provider {
     /**
      * Describe the personal data stored and transmitted by this plugin.
      *
@@ -59,6 +61,11 @@ class provider implements
                 'timecreated' => 'privacy:metadata:bookingextension_oneclick_jobs:timecreated',
             ],
             'privacy:metadata:bookingextension_oneclick_jobs'
+        );
+
+        $collection->add_user_preference(
+            guest_account_helper::PREF_EMAIL_UNVERIFIED,
+            'privacy:metadata:preference:email_unverified'
         );
 
         $collection->add_external_location_link(
@@ -148,6 +155,24 @@ class provider implements
             writer::with_context($context)->export_data(
                 [get_string('privacy:metadata:bookingextension_oneclick_jobs', 'bookingextension_oneclick')],
                 (object)['jobs' => $data]
+            );
+        }
+    }
+
+    /**
+     * Export the user preferences stored by this plugin.
+     *
+     * @param int $userid
+     * @return void
+     */
+    public static function export_user_preferences(int $userid) {
+        $pref = get_user_preferences(guest_account_helper::PREF_EMAIL_UNVERIFIED, null, $userid);
+        if ($pref !== null) {
+            writer::export_user_preference(
+                'bookingextension_oneclick',
+                guest_account_helper::PREF_EMAIL_UNVERIFIED,
+                transform::yesno((bool)$pref),
+                get_string('privacy:metadata:preference:email_unverified', 'bookingextension_oneclick')
             );
         }
     }

@@ -24,6 +24,29 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['claim_continue_message'] =
+    'My email address is set now. Please create my instance "{$a}" now.';
+$string['claim_email_label'] = 'Your email address';
+$string['claim_err_email_taken'] =
+    'This email address already belongs to an account. Please log in instead: {$a}';
+$string['claim_err_invalid_email'] = 'Please enter a valid email address.';
+$string['claim_err_not_guest'] =
+    'Your account does not need this step. Please just ask again to create your instance.';
+$string['claim_error_generic'] = 'Sorry, that did not work. Please try again.';
+$string['claim_heading'] = 'Almost there!';
+$string['claim_intro'] =
+    'To create "{$a}" we just need an email address so you keep access to your instance. You will verify it later.';
+$string['claim_login_button'] = 'Log in or register';
+$string['claim_or'] = 'or';
+$string['claim_sending'] = 'Saving…';
+$string['claim_submit'] = 'Use this email';
+$string['claim_success'] =
+    'Your email address has been saved. You will receive an email to set a password later.';
+$string['claim_success_heading'] = 'Email saved!';
+$string['claim_success_intro'] =
+    'We will send you an email to set a password later. Your request now continues automatically in the chat.';
+$string['claim_success_intro_manual'] =
+    'We will send you an email to set a password later. Now just ask again in the chat to create your instance.';
 $string['clarify_choose_instance'] =
     'You have more than one instance. Which one would you like to delete? Choose by its address or job id:';
 $string['clarify_template_choose'] =
@@ -58,6 +81,8 @@ $string['error_unavailable'] = 'The provisioning service is temporarily unavaila
 $string['list_skill_description'] =
     'List the current user\'s own trial Moodle/Booking instances and their status. Read-only: it only '
     . 'reports the user\'s existing instances and changes nothing.';
+$string['msg_claim_required'] =
+    'Almost done! To create your instance, please enter your email address in the side panel — or log in.';
 $string['msg_delete_started'] =
     'OK, we have started deleting your Booking instance. It will be removed shortly.';
 $string['msg_instances_listed'] = 'Here are your instances ({$a}):';
@@ -108,6 +133,8 @@ $string['privacy:metadata:oneclick_provisioner:request_ip'] = 'The request IP is
 $string['privacy:metadata:oneclick_provisioner:requester_email'] = 'The user email is sent for rate-limiting and notification.';
 $string['privacy:metadata:oneclick_provisioner:requester_user_id'] = 'The user id is sent to identify the requester.';
 $string['privacy:metadata:oneclick_provisioner:target_host'] = 'The requested public host name is sent.';
+$string['privacy:metadata:preference:email_unverified'] =
+    'Whether the email address the user set while claiming a guest account is still unverified.';
 $string['schema_template_intro'] = 'Choose the template id that best matches the user\'s purpose. Available templates:';
 $string['schema_template_none'] = 'No templates are configured yet; an administrator must add at least one before instances can be created.';
 $string['setting_baseurl'] = 'Provisioner base URL';
