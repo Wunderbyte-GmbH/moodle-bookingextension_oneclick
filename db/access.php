@@ -58,6 +58,18 @@ $capabilities = [
         ],
     ],
 
+    // Lets privileged staff see ALL users' provisioning jobs (operator listing,
+    // GET /admin/jobs — includes owner identity, so RISK_PERSONAL). Deliberately
+    // no archetypes: nobody holds this by default, it must be granted explicitly
+    // (site admins pass implicitly). Holders get the full list from the
+    // oneclick.list_instances skill; everyone else only ever sees — and is never
+    // told about — anything beyond their own jobs.
+    'bookingextension/oneclick:viewalljobs' => [
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+    ],
+
     // Lets the requester poll the status of their own provisioning job.
     'bookingextension/oneclick:viewjobstatus' => [
         'captype' => 'read',

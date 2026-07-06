@@ -58,19 +58,37 @@ final class list_instances_skill_test extends advanced_testcase {
      * Build a list skill wired to an in-memory fake provisioner client.
      *
      * @param array $listresult Result returned by the fake list_jobs().
+     * @param array|null $adminlistresult Result returned by the fake list_all_jobs() (admin view).
      * @return list_instances_skill
      */
-    private function make_skill(array $listresult): list_instances_skill {
+    private function make_skill(array $listresult, ?array $adminlistresult = null): list_instances_skill {
         $fake = new class extends provisioner_client {
             /** @var array */
             public array $listresult = ['ok' => false, 'httpcode' => 0, 'body' => [], 'detail' => ''];
 
+            /** @var array */
+            public array $adminlistresult = ['ok' => false, 'httpcode' => 0, 'body' => [], 'detail' => ''];
+
+            /** @var int Number of list_jobs() calls (ownership-scoped listing). */
+            public int $ownlistcalls = 0;
+
+            /** @var int Number of list_all_jobs() calls (admin listing). */
+            public int $adminlistcalls = 0;
+
             #[\Override]
             public function list_jobs(int $requesteruserid): array {
+                $this->ownlistcalls++;
                 return $this->listresult;
+            }
+
+            #[\Override]
+            public function list_all_jobs(int $operatoruserid, int $limit = 200, int $offset = 0): array {
+                $this->adminlistcalls++;
+                return $this->adminlistresult;
             }
         };
         $fake->listresult = $listresult;
+        $fake->adminlistresult = $adminlistresult ?? ['ok' => false, 'httpcode' => 0, 'body' => [], 'detail' => ''];
 
         return new class ($fake) extends list_instances_skill {
             /** @var provisioner_client */
@@ -190,6 +208,99 @@ final class list_instances_skill_test extends advanced_testcase {
         $result = $skill->execute([], 0, 123);
 
         $this->assertSame('error', $result['status']);
+    }
+
+    /**
+     * Grant the viewalljobs admin capability to a fresh user and return them.
+     *
+     * @return \stdClass
+     */
+    private function create_view_all_jobs_user(): \stdClass {
+        $user = $this->getDataGenerator()->create_user();
+        $syscontext = \context_system::instance();
+        $roleid = $this->getDataGenerator()->create_role();
+        assign_capability('bookingextension/oneclick:viewalljobs', CAP_ALLOW, $roleid, $syscontext->id);
+        role_assign($roleid, $user->id, $syscontext->id);
+        return $user;
+    }
+
+    /**
+     * A viewalljobs holder transparently gets the full admin list across all users.
+     */
+    public function test_execute_capability_holder_gets_all_users_jobs(): void {
+        $this->configure();
+        $admin = $this->create_view_all_jobs_user();
+        $skill = $this->make_skill(
+            $this->list_ok([['job_id' => 77, 'status' => 'ready']]),
+            $this->list_ok([
+                [
+                    'job_id' => 58,
+                    'status' => 'failed',
+                    'target_host' => 'listone.sofabooking.com',
+                    'requester_user_id' => 42,
+                    'requester_email' => 'owner@example.com',
+                    'error_summary' => 'Helm upgrade timed out after 10m.',
+                ],
+                [
+                    'job_id' => 59,
+                    'status' => 'ready',
+                    'target_host' => 'listtwo.sofabooking.com',
+                    'requester_user_id' => 43,
+                    'requester_email' => 'other@example.com',
+                ],
+            ])
+        );
+
+        $result = $skill->execute([], 0, (int)$admin->id);
+
+        $this->assertSame('executed', $result['status']);
+        $this->assertSame(1, $skill->client->adminlistcalls);
+        $this->assertSame(0, $skill->client->ownlistcalls);
+        $observation = $result['observation_full'];
+        $this->assertStringContainsString('full list across all users', $observation);
+        $this->assertStringContainsString('owner_userid=42', $observation);
+        $this->assertStringContainsString('owner_email=owner@example.com', $observation);
+        $this->assertStringContainsString('error=Helm upgrade timed out after 10m.', $observation);
+        $this->assertStringContainsString('job_id=59', $observation);
+    }
+
+    /**
+     * Without the capability the ownership-scoped listing is used and the
+     * observation carries no trace of the admin view existing.
+     */
+    public function test_execute_without_capability_stays_ownership_scoped(): void {
+        $this->configure();
+        $user = $this->getDataGenerator()->create_user();
+        $skill = $this->make_skill(
+            $this->list_ok([['job_id' => 77, 'status' => 'ready', 'target_host' => 'mine.sofabooking.com']]),
+            $this->list_ok([['job_id' => 58, 'status' => 'ready', 'requester_user_id' => 42]])
+        );
+
+        $result = $skill->execute([], 0, (int)$user->id);
+
+        $this->assertSame('executed', $result['status']);
+        $this->assertSame(0, $skill->client->adminlistcalls);
+        $this->assertSame(1, $skill->client->ownlistcalls);
+        $observation = $result['observation_full'];
+        $this->assertStringContainsString('job_id=77', $observation);
+        $this->assertStringNotContainsString('all users', $observation);
+        $this->assertStringNotContainsString('owner_userid', $observation);
+        $this->assertStringNotContainsString('Admin view', $observation);
+    }
+
+    /**
+     * An empty admin list reports "none at all", not the personal no-instances hint.
+     */
+    public function test_execute_capability_holder_empty_admin_list(): void {
+        $this->configure();
+        $admin = $this->create_view_all_jobs_user();
+        $skill = $this->make_skill($this->list_ok([]), $this->list_ok([]));
+
+        $result = $skill->execute([], 0, (int)$admin->id);
+
+        $this->assertSame('executed', $result['status']);
+        $this->assertSame(1, $skill->client->adminlistcalls);
+        $this->assertStringContainsString('no provisioning jobs for any user', $result['observation_full']);
     }
 
     /**

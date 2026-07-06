@@ -86,8 +86,10 @@ $string['msg_claim_required'] =
 $string['msg_delete_started'] =
     'OK, we have started deleting your Booking instance. It will be removed shortly.';
 $string['msg_instances_listed'] = 'Here are your instances ({$a}):';
+$string['msg_instances_listed_all'] = 'Here are all instances across all users ({$a}):';
 $string['msg_no_instances'] =
     'You do not have any Booking instances yet. You can ask me to create one.';
+$string['msg_no_instances_all'] = 'There are no provisioned Booking instances for any user yet.';
 $string['msg_started'] =
     'OK, we have started the creation of your Booking instance. This will take about two minutes.';
 $string['msg_under_review'] =
@@ -98,6 +100,8 @@ $string['oneclick:skill_oneclick_delete_instance'] =
     'Use the agent skill that deletes the user\'s own trial Moodle/Booking instance';
 $string['oneclick:skill_oneclick_list_instances'] =
     'Use the agent skill that lists the user\'s own trial Moodle/Booking instances';
+$string['oneclick:viewalljobs'] =
+    'See ALL users\' one-click provisioning jobs including owner identity (admin list)';
 $string['oneclick:viewjobstatus'] =
     'Poll the status of an own one-click trial instance';
 $string['pluginname'] = 'Booking AI: One-click instance';

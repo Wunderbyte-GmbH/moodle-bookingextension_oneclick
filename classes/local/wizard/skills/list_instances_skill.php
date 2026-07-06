@@ -30,6 +30,14 @@ use bookingextension_oneclick\local\settings_helper;
  * sees their own jobs). Read-only: it fetches and presents the list, changing
  * nothing, so no confirmation step is required.
  *
+ * Admin view: a user holding bookingextension/oneclick:viewalljobs (no-archetype
+ * capability, granted explicitly; site admins pass implicitly) silently gets the
+ * FULL list across all users instead, via the operator endpoint GET /admin/jobs
+ * (including owner identity). This is deliberately NOT surfaced anywhere the
+ * planner can see — schema, description, triggers and guidance stay identical for
+ * everyone — so an unprivileged user's agent cannot even learn the admin view
+ * exists; the capability only changes what the observation contains.
+ *
  * Risk class R0 (read-only): no external mutation, so the agent runs it without
  * asking the user to confirm.
  *
@@ -40,6 +48,9 @@ use bookingextension_oneclick\local\settings_helper;
 class list_instances_skill extends base_skill implements skill_trigger_provider_interface {
     /** Skill name constant. */
     public const SKILL_NAME = 'oneclick.list_instances';
+
+    /** Rows requested from GET /admin/jobs for the admin view (newest first, API max 500). */
+    private const ADMIN_LIST_LIMIT = 100;
 
     /**
      * Constructor: declares a read-only, R0 skill.
@@ -172,6 +183,9 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
     /**
      * Execute: call GET /jobs as the requesting user and summarise the result.
      *
+     * A holder of bookingextension/oneclick:viewalljobs transparently gets the full
+     * list across all users (GET /admin/jobs) instead of the ownership-scoped one.
+     *
      * @param array $preparedinput Prepared input from preflight().
      * @param int $contextid
      * @param int $userid
@@ -182,7 +196,10 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
             return $this->error_result(get_string('err_not_configured', 'bookingextension_oneclick'));
         }
 
-        $list = $this->get_client()->list_jobs($userid);
+        $alljobs = $this->can_view_all_jobs($contextid, $userid);
+        $list = $alljobs
+            ? $this->get_client()->list_all_jobs($userid, self::ADMIN_LIST_LIMIT)
+            : $this->get_client()->list_jobs($userid);
         if (!$list['ok']) {
             $detail = trim((string)($list['detail'] ?? ''));
             $message = $detail !== '' ? $detail : get_string('error_transport', 'bookingextension_oneclick');
@@ -193,29 +210,55 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
             ]);
         }
 
-        $instances = $this->normalize_instances($list['body']);
-        $usermessage = empty($instances)
-            ? get_string('msg_no_instances', 'bookingextension_oneclick')
-            : get_string('msg_instances_listed', 'bookingextension_oneclick', count($instances));
+        $instances = $this->normalize_instances($list['body'], $alljobs);
+        if ($alljobs) {
+            $usermessage = empty($instances)
+                ? get_string('msg_no_instances_all', 'bookingextension_oneclick')
+                : get_string('msg_instances_listed_all', 'bookingextension_oneclick', count($instances));
+        } else {
+            $usermessage = empty($instances)
+                ? get_string('msg_no_instances', 'bookingextension_oneclick')
+                : get_string('msg_instances_listed', 'bookingextension_oneclick', count($instances));
+        }
 
         return [
             'status' => 'executed',
             'detail' => $usermessage,
             'usermessage' => $usermessage,
             'resultid' => null,
-            'observation_full' => $this->build_observation($instances),
+            'observation_full' => $this->build_observation($instances, $alljobs),
         ];
     }
 
     /**
-     * Normalize a GET /jobs response into instance rows for display.
+     * Whether the acting user may see all users' jobs (admin view).
+     *
+     * Checked at the passed operating context (falling back to system when the
+     * engine supplies none), per the base_skill inline-capability rule.
+     *
+     * @param int $contextid Operating context id as passed to execute().
+     * @param int $userid Acting user id.
+     * @return bool
+     */
+    protected function can_view_all_jobs(int $contextid, int $userid): bool {
+        $context = null;
+        if ($contextid > 0) {
+            $context = \context::instance_by_id($contextid, IGNORE_MISSING) ?: null;
+        }
+        $context = $context ?? \context_system::instance();
+        return has_capability('bookingextension/oneclick:viewalljobs', $context, $userid);
+    }
+
+    /**
+     * Normalize a GET /jobs (or GET /admin/jobs) response into instance rows for display.
      *
      * Accepts either a bare JSON list of jobs or a {"jobs": [...]} envelope.
      *
      * @param array<mixed> $body Decoded GET /jobs body.
+     * @param bool $alljobs True for the admin view: also keep each row's owner identity.
      * @return array<int,array<string,mixed>>
      */
-    private function normalize_instances(array $body): array {
+    private function normalize_instances(array $body, bool $alljobs = false): array {
         $rawjobs = [];
         if (isset($body['jobs']) && is_array($body['jobs'])) {
             $rawjobs = $body['jobs'];
@@ -233,7 +276,7 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
                 continue;
             }
             $host = trim((string)($job['target_host'] ?? ''));
-            $instances[] = [
+            $instance = [
                 'job_id' => $jobid,
                 'status' => (string)($job['status'] ?? ''),
                 'review_status' => (string)($job['review_status'] ?? ''),
@@ -244,6 +287,12 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
                 'created_at' => (string)($job['created_at'] ?? ''),
                 'expires_at' => (string)($job['expires_at'] ?? ''),
             ];
+            if ($alljobs) {
+                $instance['requester_user_id'] = (int)($job['requester_user_id'] ?? 0);
+                $instance['requester_email'] = trim((string)($job['requester_email'] ?? ''));
+                $instance['error_summary'] = trim((string)($job['error_summary'] ?? ''));
+            }
+            $instances[] = $instance;
         }
         return $instances;
     }
@@ -252,10 +301,17 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
      * Build the deterministic observation the synchronizer turns into the answer.
      *
      * @param array<int,array<string,mixed>> $instances
+     * @param bool $alljobs True when the rows are the admin view across all users.
      * @return string
      */
-    private function build_observation(array $instances): string {
+    private function build_observation(array $instances, bool $alljobs = false): string {
         if (empty($instances)) {
+            if ($alljobs) {
+                return implode("\n", [
+                    'Admin view: there are no provisioning jobs for any user.',
+                    'Tell the user (a privileged viewer) that no instances exist on the provisioner at all.',
+                ]);
+            }
             return implode("\n", [
                 'The user has no trial instances.',
                 'Tell the user they currently have no Booking/Moodle instances, and that they can ask to create one.',
@@ -263,10 +319,26 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
         }
 
         $lines = [];
-        $lines[] = 'The user has ' . count($instances) . ' instance(s). Present this list, linking each to its '
-            . 'URL and stating its status. Do not invent instances beyond this list.';
+        if ($alljobs) {
+            $intro = 'Admin view: the user may see ALL users\' jobs, so this is the full list across all users ('
+                . count($instances) . ' job(s), newest first';
+            if (count($instances) >= self::ADMIN_LIST_LIMIT) {
+                $intro .= '; capped at the newest ' . self::ADMIN_LIST_LIMIT . ', older jobs exist';
+            }
+            $intro .= '). Present it with each job\'s owner, URL and status. Do not invent entries beyond this list.';
+            $lines[] = $intro;
+        } else {
+            $lines[] = 'The user has ' . count($instances) . ' instance(s). Present this list, linking each to its '
+                . 'URL and stating its status. Do not invent instances beyond this list.';
+        }
         foreach ($instances as $instance) {
             $parts = ['job_id=' . $instance['job_id']];
+            if ($alljobs) {
+                $parts[] = 'owner_userid=' . ($instance['requester_user_id'] ?? 0);
+                if (($instance['requester_email'] ?? '') !== '') {
+                    $parts[] = 'owner_email=' . $instance['requester_email'];
+                }
+            }
             $parts[] = 'status=' . ($instance['status'] !== '' ? $instance['status'] : 'unknown');
             if ($instance['review_status'] !== '' && $instance['review_status'] !== 'not_required') {
                 $parts[] = 'review_status=' . $instance['review_status'];
@@ -285,6 +357,9 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
             }
             if ($instance['expires_at'] !== '') {
                 $parts[] = 'expires=' . $instance['expires_at'];
+            }
+            if ($alljobs && ($instance['error_summary'] ?? '') !== '') {
+                $parts[] = 'error=' . $instance['error_summary'];
             }
             $lines[] = '- ' . implode(', ', $parts);
         }

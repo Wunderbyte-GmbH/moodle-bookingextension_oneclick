@@ -89,8 +89,10 @@ $string['msg_claim_required'] =
 $string['msg_delete_started'] =
     'OK, wir haben das Löschen Ihrer Booking-Instanz gestartet. Sie wird in Kürze entfernt.';
 $string['msg_instances_listed'] = 'Hier sind Ihre Instanzen ({$a}):';
+$string['msg_instances_listed_all'] = 'Hier sind alle Instanzen aller Benutzer ({$a}):';
 $string['msg_no_instances'] =
     'Sie haben noch keine Booking-Instanzen. Sie können mich bitten, eine zu erstellen.';
+$string['msg_no_instances_all'] = 'Es gibt noch keine provisionierten Booking-Instanzen.';
 $string['msg_started'] =
     'OK, wir haben die Erstellung Ihrer Booking-Instanz gestartet. Das dauert etwa zwei Minuten.';
 $string['msg_under_review'] =
@@ -101,6 +103,8 @@ $string['oneclick:skill_oneclick_delete_instance'] =
     'Den Agenten-Skill nutzen, der die eigene Test-Moodle-/Booking-Instanz löscht';
 $string['oneclick:skill_oneclick_list_instances'] =
     'Den Agenten-Skill nutzen, der die eigenen Test-Moodle-/Booking-Instanzen auflistet';
+$string['oneclick:viewalljobs'] =
+    'Die Ein-Klick-Provisionierungs-Jobs ALLER Benutzer samt Besitzeridentität einsehen (Admin-Liste)';
 $string['oneclick:viewjobstatus'] =
     'Den Status einer eigenen Ein-Klick-Testinstanz abfragen';
 $string['pluginname'] = 'Booking KI: Ein-Klick-Instanz';

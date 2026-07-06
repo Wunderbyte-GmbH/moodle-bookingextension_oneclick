@@ -113,6 +113,26 @@ class provisioner_client {
     }
 
     /**
+     * List ALL users' jobs via the operator endpoint (GET /admin/jobs, NOT ownership-scoped).
+     *
+     * Unlike list_jobs() every row additionally carries the requester identity
+     * (requester_user_id, requester_email, request_ip) and error_summary — personal
+     * data, so callers MUST gate this behind the admin-only capability
+     * bookingextension/oneclick:viewalljobs and never expose the raw response to
+     * unprivileged users.
+     *
+     * @param int $operatoruserid Acting Moodle user id, sent as X-Operator-Id (audit attribution only).
+     * @param int $limit Max rows to return, newest first (API allows 1-500).
+     * @param int $offset Rows to skip (pagination).
+     * @return array{ok:bool,httpcode:int,body:array,detail:string}
+     */
+    public function list_all_jobs(int $operatoruserid, int $limit = 200, int $offset = 0): array {
+        return $this->request('GET', '/admin/jobs?limit=' . $limit . '&offset=' . $offset, null, [
+            'X-Operator-Id: ' . $operatoruserid,
+        ]);
+    }
+
+    /**
      * Delete a job owned by the requester (self-service "delete my instance").
      *
      * Ownership is enforced server-side via X-Requester-User-Id: a job owned by
