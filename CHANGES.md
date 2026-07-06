@@ -3,6 +3,19 @@
 All notable changes to the One-Click trial-instance provisioning plugin are documented here.
 Versions use the Moodle `YYYYMMDDXX` scheme; the human-readable release tag is in parentheses.
 
+## 2026070301 (v1.4.4) — 2026-07-06
+
+### Added
+- Admin view for `oneclick.list_instances`: a user holding the new capability
+  `bookingextension/oneclick:viewalljobs` (RISK_PERSONAL, system level, **no archetype
+  defaults** — must be granted explicitly; site admins pass implicitly) transparently gets the
+  full job list **across all users** via the operator endpoint `GET /admin/jobs` (newest 100,
+  including owner user id/email and `error_summary` for failed jobs). Everything the planner
+  sees — schema, description, triggers, guidance — is unchanged for everyone, so an
+  unprivileged user's agent cannot learn the admin view exists; the capability only changes
+  what the execution observation contains. New `provisioner_client::list_all_jobs()`
+  (`X-Operator-Id` audit header, limit/offset passthrough).
+
 ## 2026070300 (v1.4.3) — 2026-07-03
 
 ### Fixed
