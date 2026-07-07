@@ -16,9 +16,9 @@
 
 namespace bookingextension_oneclick\local\wizard\skills;
 
-use bookingextension_agent\local\wizard\base_skill;
-use bookingextension_agent\local\wizard\dto\skill_risk_class;
-use bookingextension_agent\local\wizard\interfaces\skill_trigger_provider_interface;
+use bookingextension_oneclick\local\wizard\engine\base_skill;
+use bookingextension_oneclick\local\wizard\engine\skill_risk_class;
+use bookingextension_oneclick\local\wizard\engine\skill_trigger_provider_interface;
 use bookingextension_oneclick\local\job_repository;
 use bookingextension_oneclick\local\provisioner_client;
 use bookingextension_oneclick\local\saml2_sp_registry;

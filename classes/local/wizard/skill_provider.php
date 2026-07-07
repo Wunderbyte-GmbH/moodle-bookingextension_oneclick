@@ -16,8 +16,8 @@
 
 namespace bookingextension_oneclick\local\wizard;
 
-use bookingextension_agent\local\wizard\interfaces\issue_code_provider_interface;
-use bookingextension_agent\local\wizard\interfaces\skill_provider_interface;
+use bookingextension_oneclick\local\wizard\engine\issue_code_provider_interface;
+use bookingextension_oneclick\local\wizard\engine\skill_provider_interface;
 use bookingextension_oneclick\local\wizard\skills\create_instance_skill;
 use bookingextension_oneclick\local\wizard\skills\delete_instance_skill;
 use bookingextension_oneclick\local\wizard\skills\list_instances_skill;
@@ -46,7 +46,7 @@ class skill_provider implements skill_provider_interface {
     /**
      * Return the concrete skill instances contributed by this plugin.
      *
-     * @return array<int,\bookingextension_agent\local\wizard\interfaces\skill_interface>
+     * @return \bookingextension_oneclick\local\wizard\engine\skill_interface[]
      */
     public function get_skills(): array {
         return [

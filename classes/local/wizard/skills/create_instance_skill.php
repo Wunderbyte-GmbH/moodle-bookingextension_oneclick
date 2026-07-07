@@ -16,10 +16,10 @@
 
 namespace bookingextension_oneclick\local\wizard\skills;
 
-use bookingextension_agent\local\wizard\base_skill;
-use bookingextension_agent\local\wizard\dto\skill_risk_class;
-use bookingextension_agent\local\wizard\interfaces\skill_trigger_provider_interface;
-use bookingextension_agent\local\wizard\services\localized_string_service;
+use bookingextension_oneclick\local\wizard\engine\base_skill;
+use bookingextension_oneclick\local\wizard\engine\skill_risk_class;
+use bookingextension_oneclick\local\wizard\engine\skill_trigger_provider_interface;
+use bookingextension_oneclick\local\wizard\engine\localized_string_service;
 use bookingextension_oneclick\local\guest_account_helper;
 use bookingextension_oneclick\local\instance_naming;
 use bookingextension_oneclick\local\job_repository;
