@@ -3,6 +3,18 @@
 All notable changes to the One-Click trial-instance provisioning plugin are documented here.
 Versions use the Moodle `YYYYMMDDXX` scheme; the human-readable release tag is in parentheses.
 
+## 2026070302 (v1.4.5) — 2026-07-07
+
+### Changed
+- Guest email-claim flow: the automatic continuation message after a successful claim is now a
+  plain fresh request ("Please create my trial instance named X") instead of a confirmation-style
+  sentence ("My email address is set now. Please create my instance X now."). The old wording
+  pattern-matched the selector's "explicit confirmation of an already pending action ->
+  commands=[]" decision rule and reliably destabilized the follow-up planning turn
+  (`CONTRACT_VALIDATION_ERROR`: command-bearing response type with empty commands), so the very
+  first post-claim attempt failed with a "please try again" error while a manual retry worked.
+  Changed in the lang strings (en/de) and the client-side fallback for older payloads.
+
 ## 2026070301 (v1.4.4) — 2026-07-06
 
 ### Added
