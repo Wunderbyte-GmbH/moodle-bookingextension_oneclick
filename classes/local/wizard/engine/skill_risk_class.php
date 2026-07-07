@@ -28,7 +28,15 @@
 
 namespace bookingextension_oneclick\local\wizard\engine;
 
-class_alias(
-    engine_resolver::fqcn('dto\\skill_risk_class'),
-    skill_risk_class::class
-);
+// Idempotence guard: engine_resolver's eager preload can re-enter the file whose
+// load triggered it, and manual requires (scaffold tests) may load it twice.
+if (
+    !class_exists(skill_risk_class::class, false)
+    && !interface_exists(skill_risk_class::class, false)
+    && !trait_exists(skill_risk_class::class, false)
+) {
+    class_alias(
+        engine_resolver::fqcn('dto\\skill_risk_class'),
+        skill_risk_class::class
+    );
+}

@@ -28,7 +28,15 @@
 
 namespace bookingextension_oneclick\local\wizard\engine;
 
-class_alias(
-    engine_resolver::fqcn('services\\localized_string_service'),
-    localized_string_service::class
-);
+// Idempotence guard: engine_resolver's eager preload can re-enter the file whose
+// load triggered it, and manual requires (scaffold tests) may load it twice.
+if (
+    !class_exists(localized_string_service::class, false)
+    && !interface_exists(localized_string_service::class, false)
+    && !trait_exists(localized_string_service::class, false)
+) {
+    class_alias(
+        engine_resolver::fqcn('services\\localized_string_service'),
+        localized_string_service::class
+    );
+}

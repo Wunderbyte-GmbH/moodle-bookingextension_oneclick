@@ -28,7 +28,15 @@
 
 namespace bookingextension_oneclick\local\wizard\engine;
 
-class_alias(
-    engine_resolver::fqcn('interfaces\\thread_memory'),
-    thread_memory::class
-);
+// Idempotence guard: engine_resolver's eager preload can re-enter the file whose
+// load triggered it, and manual requires (scaffold tests) may load it twice.
+if (
+    !class_exists(thread_memory::class, false)
+    && !interface_exists(thread_memory::class, false)
+    && !trait_exists(thread_memory::class, false)
+) {
+    class_alias(
+        engine_resolver::fqcn('interfaces\\thread_memory'),
+        thread_memory::class
+    );
+}
