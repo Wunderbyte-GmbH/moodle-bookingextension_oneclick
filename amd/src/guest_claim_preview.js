@@ -264,8 +264,7 @@ export const render = async(payload, contextid) => {
             successIntro: 'Your request now continues automatically in the chat.',
             successIntroManual: 'You can now ask again in the chat to create your instance.',
             errorGeneric: 'Sorry, that did not work. Please try again.',
-            continueMessage: 'My email address is set now. Please create my instance "'
-                + safePayload.sitename + '" now.',
+            continueMessage: 'Please create my trial instance named "' + safePayload.sitename + '".',
         };
     }
 

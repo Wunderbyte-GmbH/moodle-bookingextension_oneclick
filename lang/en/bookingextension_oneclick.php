@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['claim_continue_message'] =
-    'My email address is set now. Please create my instance "{$a}" now.';
+    'Please create my trial instance named "{$a}".';
 $string['claim_email_label'] = 'Your email address';
 $string['claim_err_email_taken'] =
     'This email address already belongs to an account. Please log in instead: {$a}';

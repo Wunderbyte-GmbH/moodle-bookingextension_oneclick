@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['claim_continue_message'] =
-    'Meine E-Mail-Adresse ist jetzt gesetzt. Bitte erstelle meine Instanz „{$a}“ jetzt.';
+    'Bitte erstelle meine Test-Instanz mit dem Namen „{$a}“.';
 $string['claim_email_label'] = 'Ihre E-Mail-Adresse';
 $string['claim_err_email_taken'] =
     'Diese E-Mail-Adresse gehört bereits zu einem Konto. Bitte melden Sie sich stattdessen an: {$a}';
