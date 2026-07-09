@@ -81,6 +81,19 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
     }
 
     /**
+     * Whether this skill is usable on this instance at all (enabled + provisioner configured).
+     *
+     * Duck-typed by the agent engine (e.g. the MCP tool catalog) to hide skills that would
+     * only ever preflight-block with "not fully configured". Cheap and side-effect-free:
+     * reads plugin config only, no remote calls.
+     *
+     * @return bool
+     */
+    public function is_available(): bool {
+        return settings_helper::is_enabled() && settings_helper::is_configured();
+    }
+
+    /**
      * Return the skill schema seen by the planner.
      *
      * @return array
