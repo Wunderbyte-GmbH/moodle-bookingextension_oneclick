@@ -267,7 +267,7 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
      *
      * Accepts either a bare JSON list of jobs or a {"jobs": [...]} envelope.
      *
-     * @param array<mixed> $body Decoded GET /jobs body.
+     * @param array $body Decoded GET /jobs body.
      * @param bool $alljobs True for the admin view: also keep each row's owner identity.
      * @return array<int,array<string,mixed>>
      */
@@ -313,7 +313,7 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
     /**
      * Build the deterministic observation the synchronizer turns into the answer.
      *
-     * @param array<int,array<string,mixed>> $instances
+     * @param array $instances
      * @param bool $alljobs True when the rows are the admin view across all users.
      * @return string
      */
@@ -383,7 +383,7 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
      * Build a uniform error result array.
      *
      * @param string $message
-     * @param array<string,mixed> $technical Optional technical context for the observation only.
+     * @param array $technical Optional technical context for the observation only.
      * @return array<string,mixed>
      */
     private function error_result(string $message, array $technical = []): array {
@@ -407,7 +407,7 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
     /**
      * Wrap plain error strings into the structured issue shape preflight expects.
      *
-     * @param array<int,string> $errors
+     * @param array $errors
      * @return array<int,array<string,mixed>>
      */
     private function issues_from_errors(array $errors): array {

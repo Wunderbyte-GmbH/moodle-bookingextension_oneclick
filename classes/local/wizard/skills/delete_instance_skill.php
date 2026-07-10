@@ -260,7 +260,7 @@ class delete_instance_skill extends base_skill implements skill_trigger_provider
      * keeps only non-terminal jobs (cancelled/expired/failed are not deletable —
      * failed is auto-cleaned by the provisioner).
      *
-     * @param array<mixed> $body Decoded GET /jobs body.
+     * @param array $body Decoded GET /jobs body.
      * @return array<int,array{job_id:int,status:string,target_host:string,target_release:string}>
      */
     private function deletable_candidates(array $body): array {
@@ -295,7 +295,7 @@ class delete_instance_skill extends base_skill implements skill_trigger_provider
     /**
      * Whether a candidate matches a (lowercased) site name the user gave.
      *
-     * @param array{target_host:string,target_release:string} $candidate
+     * @param array $candidate
      * @param string $needle Lowercased site name.
      * @return bool
      */
@@ -308,7 +308,7 @@ class delete_instance_skill extends base_skill implements skill_trigger_provider
     /**
      * Build the "which instance?" clarification, listing the user's deletable jobs.
      *
-     * @param array<int,array{job_id:int,status:string,target_host:string}> $candidates
+     * @param array $candidates
      * @return string
      */
     private function build_instance_clarification(array $candidates): string {
@@ -389,7 +389,7 @@ class delete_instance_skill extends base_skill implements skill_trigger_provider
      * Prefers the provisioner's own `detail` when present, otherwise a localized
      * message per HTTP status.
      *
-     * @param array{ok:bool,httpcode:int,body:array,detail:string} $delete
+     * @param array $delete
      * @return string
      */
     private function map_delete_error(array $delete): string {
@@ -436,7 +436,7 @@ class delete_instance_skill extends base_skill implements skill_trigger_provider
      * Build a uniform error result array.
      *
      * @param string $message
-     * @param array<string,mixed> $technical Optional technical context for the observation only.
+     * @param array $technical Optional technical context for the observation only.
      * @return array<string,mixed>
      */
     private function error_result(string $message, array $technical = []): array {
@@ -460,7 +460,7 @@ class delete_instance_skill extends base_skill implements skill_trigger_provider
     /**
      * Wrap plain error strings into the structured issue shape preflight expects.
      *
-     * @param array<int,string> $errors
+     * @param array $errors
      * @return array<int,array<string,mixed>>
      */
     private function issues_from_errors(array $errors): array {

@@ -35,9 +35,9 @@ class job_repository {
     /**
      * Insert a freshly spawned job and return the local record id.
      *
-     * @param array<string,mixed> $data Keys: userid, jobid, sitename, templateid,
-     *                                   targetrelease, targetnamespace, targethost,
-     *                                   status, reviewstatus.
+     * @param array $data Keys: userid, jobid, sitename, templateid,
+     *                    targetrelease, targetnamespace, targethost,
+     *                    status, reviewstatus.
      * @return int Local record id.
      */
     public static function create(array $data): int {

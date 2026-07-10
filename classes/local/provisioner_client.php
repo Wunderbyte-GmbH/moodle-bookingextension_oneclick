@@ -67,7 +67,7 @@ class provisioner_client {
     /**
      * Request a new trial instance.
      *
-     * @param array<string,mixed> $payload Spawn body fields (see API doc).
+     * @param array $payload Spawn body fields (see API doc).
      * @return array{ok:bool,httpcode:int,body:array,detail:string}
      */
     public function spawn(array $payload): array {
@@ -154,8 +154,8 @@ class provisioner_client {
      *
      * @param string $method HTTP verb.
      * @param string $path Path relative to the base URL.
-     * @param array<string,mixed>|null $jsonbody JSON body to send, or null.
-     * @param array<int,string> $extraheaders Additional raw headers.
+     * @param array|null $jsonbody JSON body to send, or null.
+     * @param array $extraheaders Additional raw headers.
      * @param bool $auth Whether to attach the auth headers.
      * @return array{ok:bool,httpcode:int,body:array,detail:string}
      */

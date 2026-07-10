@@ -637,7 +637,7 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
      * Prefers the provisioner's own `detail` when present (it is documented as
      * safe to show), otherwise a localized message per HTTP status.
      *
-     * @param array{ok:bool,httpcode:int,body:array,detail:string} $spawn
+     * @param array $spawn
      * @return string
      */
     private function map_spawn_error(array $spawn): string {
@@ -670,6 +670,7 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
      * Build a uniform error result array.
      *
      * @param string $message
+     * @param array $technical Optional technical context for the observation only.
      * @return array<string,mixed>
      */
     private function error_result(string $message, array $technical = []): array {
@@ -695,7 +696,7 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
      * template as "id — description" (or just the id when no description is set).
      *
      * @param string $given The template_id the user/LLM supplied (empty if none).
-     * @param array<string,string> $templates Configured id => description map.
+     * @param array $templates Configured id => description map.
      * @param string $lang The conversation output language ('' = current language).
      * @return string
      */
@@ -716,7 +717,7 @@ class create_instance_skill extends base_skill implements skill_trigger_provider
     /**
      * Wrap plain error strings into the structured issue shape preflight expects.
      *
-     * @param array<int,string> $errors
+     * @param array $errors
      * @return array<int,array<string,mixed>>
      */
     private function issues_from_errors(array $errors): array {

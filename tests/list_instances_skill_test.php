@@ -114,7 +114,7 @@ final class list_instances_skill_test extends advanced_testcase {
     /**
      * Build an ok GET /jobs list result from job rows.
      *
-     * @param array<int,array<string,mixed>> $jobs
+     * @param array $jobs
      * @return array
      */
     private function list_ok(array $jobs): array {
