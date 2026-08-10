@@ -38,6 +38,11 @@ final class saml2_sp_registry_test extends advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        // Force the baseline "auth_saml2 setting absent" state: when auth_saml2 is installed
+        // its moodleidpsplist default ('') is applied, which the "absent" no-op tests would
+        // otherwise mistake for a present-but-empty list. Tests that need a value set it
+        // explicitly, so clearing it here is safe for the whole class.
+        unset_config('moodleidpsplist', 'auth_saml2');
     }
 
     /**

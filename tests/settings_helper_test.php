@@ -32,6 +32,10 @@ final class settings_helper_test extends advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        // The plugin ships a non-empty default for templates (settings.php), applied to the
+        // test config at install. Clear it so the "unset" cases test the true fallback; the
+        // tests that need a value set it explicitly.
+        unset_config('templates', 'bookingextension_oneclick');
     }
 
     /**
