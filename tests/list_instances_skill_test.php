@@ -40,6 +40,16 @@ final class list_instances_skill_test extends advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        // The engine alias layer is registered by the active engine, not vendored. Tests
+        // instantiate skills directly, so bootstrap the aliases via the active engine's
+        // registrar (local_wizard outranks the bundled agent).
+        foreach (['local_wizard', 'bookingextension_agent'] as $enginecandidate) {
+            $registrar = '\\' . $enginecandidate . '\\local\\wizard\\services\\engine_alias_registrar';
+            if (class_exists($registrar)) {
+                $registrar::register_for_namespace_root('bookingextension_oneclick');
+                break;
+            }
+        }
     }
 
     /**
