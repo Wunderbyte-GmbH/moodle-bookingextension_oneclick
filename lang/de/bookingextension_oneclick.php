@@ -55,9 +55,6 @@ $string['clarify_template_choose'] =
     'Welche Vorlage möchten Sie für Ihre Instanz verwenden? Verfügbare Vorlagen:';
 $string['clarify_template_unknown'] =
     'Die Vorlage „{$a}“ ist nicht verfügbar. Bitte wählen Sie eine dieser Vorlagen:';
-$string['delete_skill_description'] =
-    'Die eigene Test-Moodle-/Booking-Instanz der Nutzerin/des Nutzers löschen (entfernen). Die eigene '
-    . 'aktive Instanz wird automatisch ermittelt; sie wird dabei unwiderruflich abgebaut.';
 $string['err_email_not_verified'] =
     'Ihre E-Mail-Adresse muss bestätigt sein, bevor Sie eine Testinstanz erstellen können.';
 $string['err_guest_must_register'] =
@@ -80,9 +77,6 @@ $string['error_rate_limited'] =
     'Die Provisionierungs-Warteschlange ist ausgelastet oder Sie befinden sich in der Abklingphase. Bitte später erneut versuchen.';
 $string['error_transport'] = 'Der Provisionierungsdienst konnte nicht erreicht werden. Bitte versuchen Sie es später erneut.';
 $string['error_unavailable'] = 'Der Provisionierungsdienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.';
-$string['list_skill_description'] =
-    'Die eigenen Test-Moodle-/Booking-Instanzen des Benutzers samt Status auflisten. Nur lesend: es werden '
-    . 'ausschließlich die vorhandenen Instanzen angezeigt, nichts verändert.';
 $string['msg_claim_required'] =
     'Fast geschafft! Um Ihre Instanz zu erstellen, geben Sie bitte Ihre E-Mail-Adresse im Seitenbereich ein — '
     . 'oder melden Sie sich an.';
@@ -174,7 +168,3 @@ $string['setting_templates_desc'] =
     . 'Die erste Zeile ist die Standardvorlage.';
 $string['settings_heading_desc'] =
     'Konfiguriert den Ein-Klick-Provisionierungs-Skill, mit dem der Booking-KI-Agent persönliche Test-Moodle-Instanzen erstellen kann.';
-$string['skilldescription_default'] =
-    'Erstellt eine persönliche Test-Moodle-/Booking-Instanz für die aktuelle Nutzerin bzw. den aktuellen Nutzer. '
-    . 'Verwenden, wenn jemand darum bittet, eine eigene Moodle- oder Booking-Seite/-Instanz zu erstellen, optional mit '
-    . 'einem Namen. Die Instanz wird extern bereitgestellt und ist nach wenigen Minuten verfügbar.';

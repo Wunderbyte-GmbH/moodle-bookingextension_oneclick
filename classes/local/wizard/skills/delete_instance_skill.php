@@ -45,6 +45,14 @@ class delete_instance_skill extends base_skill implements skill_trigger_provider
     public const SKILL_NAME = 'oneclick.delete_instance';
 
     /**
+     * LLM-facing description (an English discovery anchor of the embeddings catalog). Deliberately not a
+     * language string: a localised text changes the anchor hash per session language and makes the catalog
+     * "stale" for every non-English session (Wunderbyte-GmbH/Wunderbyte-GmbH#2420).
+     */
+    public const DESCRIPTION = 'Delete (remove) the user\'s own trial Moodle/Booking instance. The user\'s own active '
+        . 'instance is resolved automatically; this irreversibly tears it down.';
+
+    /**
      * Constructor: declares a non-read-only, R3 (external/irreversible) skill.
      */
     public function __construct() {
@@ -93,7 +101,7 @@ class delete_instance_skill extends base_skill implements skill_trigger_provider
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => get_string('delete_skill_description', 'bookingextension_oneclick'),
+            'description' => self::DESCRIPTION,
             'readonly' => $this->is_read_only(),
             'properties' => [
                 'sitename' => [

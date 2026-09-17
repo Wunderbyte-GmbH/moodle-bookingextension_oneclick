@@ -49,6 +49,14 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
     /** Skill name constant. */
     public const SKILL_NAME = 'oneclick.list_instances';
 
+    /**
+     * LLM-facing description (an English discovery anchor of the embeddings catalog). Deliberately not a
+     * language string: a localised text changes the anchor hash per session language and makes the catalog
+     * "stale" for every non-English session (Wunderbyte-GmbH/Wunderbyte-GmbH#2420).
+     */
+    public const DESCRIPTION = 'List the current user\'s own trial Moodle/Booking instances and their status. Read-only: '
+        . 'it only reports the user\'s existing instances and changes nothing.';
+
     /** Rows requested from GET /admin/jobs for the admin view (newest first, API max 500). */
     private const ADMIN_LIST_LIMIT = 100;
 
@@ -101,7 +109,7 @@ class list_instances_skill extends base_skill implements skill_trigger_provider_
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => get_string('list_skill_description', 'bookingextension_oneclick'),
+            'description' => self::DESCRIPTION,
             'readonly' => $this->is_read_only(),
             'properties' => [],
             'prompt_meta' => [

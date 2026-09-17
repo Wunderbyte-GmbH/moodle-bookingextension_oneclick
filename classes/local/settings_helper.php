@@ -38,6 +38,14 @@ class settings_helper {
     /** Default public host suffix appended to generated release slugs. */
     public const DEFAULT_HOST_SUFFIX = 'sofabooking.com';
 
+    /**
+     * Default LLM-facing description of oneclick.create_instance (English discovery anchor). Not a language
+     * string: a localised default changes the anchor hash per session language (Wunderbyte-GmbH/Wunderbyte-GmbH#2420).
+     */
+    public const DEFAULT_SKILL_DESCRIPTION = 'Create a personal trial Moodle/Booking instance for the current user. '
+        . 'Use this when the user asks to create their own Moodle or Booking site/instance, optionally giving it a '
+        . 'name. The instance is provisioned externally and becomes available after a couple of minutes.';
+
     /** Default URL guests are sent to in order to register before creating an instance. */
     public const DEFAULT_REGISTER_URL = '/login/index.php?loginredirect=1';
 
@@ -95,7 +103,7 @@ class settings_helper {
     public static function get_skill_description(): string {
         $description = trim((string)get_config(self::COMPONENT, 'skilldescription'));
         if ($description === '') {
-            $description = get_string('skilldescription_default', self::COMPONENT);
+            $description = self::DEFAULT_SKILL_DESCRIPTION;
         }
         return $description;
     }

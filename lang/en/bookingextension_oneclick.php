@@ -53,9 +53,6 @@ $string['clarify_template_choose'] =
     'Which template would you like to use for your instance? Available templates:';
 $string['clarify_template_unknown'] =
     'The template "{$a}" is not available. Please choose one of these templates:';
-$string['delete_skill_description'] =
-    'Delete (remove) the user\'s own trial Moodle/Booking instance. The user\'s own active '
-    . 'instance is resolved automatically; this irreversibly tears it down.';
 $string['err_email_not_verified'] =
     'Your email address must be confirmed before you can create a trial instance.';
 $string['err_guest_must_register'] =
@@ -78,9 +75,6 @@ $string['error_rate_limited'] =
     'The provisioning queue is busy or you are within the cooldown window. Please try again later.';
 $string['error_transport'] = 'The provisioning service could not be reached. Please try again later.';
 $string['error_unavailable'] = 'The provisioning service is temporarily unavailable. Please try again later.';
-$string['list_skill_description'] =
-    'List the current user\'s own trial Moodle/Booking instances and their status. Read-only: it only '
-    . 'reports the user\'s existing instances and changes nothing.';
 $string['msg_claim_required'] =
     'Almost done! To create your instance, please enter your email address in the side panel — or log in.';
 $string['msg_delete_started'] =
@@ -170,7 +164,3 @@ $string['setting_templates_desc'] =
     . 'The description helps the AI choose the right template based on the user\'s request. The first line is the default.';
 $string['settings_heading_desc'] =
     'Configure the one-click provisioner skill that lets the Booking AI agent create personal trial Moodle instances.';
-$string['skilldescription_default'] =
-    'Create a personal trial Moodle/Booking instance for the current user. Use this when the user asks to create '
-    . 'their own Moodle or Booking site/instance, optionally giving it a name. The instance is provisioned externally '
-    . 'and becomes available after a couple of minutes.';

@@ -93,7 +93,7 @@ $settingspage->add(new admin_setting_configtextarea(
     'bookingextension_oneclick/skilldescription',
     get_string('setting_skilldescription', 'bookingextension_oneclick'),
     get_string('setting_skilldescription_desc', 'bookingextension_oneclick'),
-    get_string('skilldescription_default', 'bookingextension_oneclick'),
+    settings_helper::DEFAULT_SKILL_DESCRIPTION,
     PARAM_RAW
 ));
 
