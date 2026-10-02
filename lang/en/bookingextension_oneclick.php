@@ -98,7 +98,7 @@ $string['oneclick:viewalljobs'] =
     'See ALL users\' one-click provisioning jobs including owner identity (admin list)';
 $string['oneclick:viewjobstatus'] =
     'Poll the status of an own one-click trial instance';
-$string['pluginname'] = 'Booking AI: One-click instance';
+$string['pluginname'] = 'Booking extension: One-click instance';
 $string['preview_almost_ready'] = 'Almost ready…';
 $string['preview_cancelled_heading'] = 'Request cancelled';
 $string['preview_cancelled_intro'] = 'An operator cancelled this request.';

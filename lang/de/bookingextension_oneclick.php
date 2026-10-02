@@ -101,7 +101,7 @@ $string['oneclick:viewalljobs'] =
     'Die Ein-Klick-Provisionierungs-Jobs ALLER Benutzer samt Besitzeridentität einsehen (Admin-Liste)';
 $string['oneclick:viewjobstatus'] =
     'Den Status einer eigenen Ein-Klick-Testinstanz abfragen';
-$string['pluginname'] = 'Booking KI: Ein-Klick-Instanz';
+$string['pluginname'] = 'Booking-Erweiterung: Ein-Klick-Instanz';
 $string['preview_almost_ready'] = 'Fast fertig…';
 $string['preview_cancelled_heading'] = 'Anfrage abgebrochen';
 $string['preview_cancelled_intro'] = 'Eine Betreiberin bzw. ein Betreiber hat diese Anfrage abgebrochen.';
