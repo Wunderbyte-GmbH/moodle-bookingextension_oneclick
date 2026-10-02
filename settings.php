@@ -41,78 +41,82 @@ $settingspage = new admin_settingpage(
     empty($hassiteconfig)
 );
 
-$settingspage->add(new admin_setting_heading(
-    'bookingextension_oneclick/heading',
-    get_string('pluginname', 'bookingextension_oneclick'),
-    get_string('settings_heading_desc', 'bookingextension_oneclick')
-));
+// The admin navigation is built on every admin page and only needs the page; the settings are
+// built for the full tree alone.
+if ($adminroot->fulltree) {
+    $settingspage->add(new admin_setting_heading(
+        'bookingextension_oneclick/heading',
+        get_string('pluginname', 'bookingextension_oneclick'),
+        get_string('settings_heading_desc', 'bookingextension_oneclick')
+    ));
 
-// Master enable switch for the skill.
-$settingspage->add(new admin_setting_configcheckbox(
-    'bookingextension_oneclick/enabled',
-    get_string('setting_enabled', 'bookingextension_oneclick'),
-    get_string('setting_enabled_desc', 'bookingextension_oneclick'),
-    0
-));
-
-// Provisioner connection.
-$settingspage->add(new admin_setting_configtext(
-    'bookingextension_oneclick/baseurl',
-    get_string('setting_baseurl', 'bookingextension_oneclick'),
-    get_string('setting_baseurl_desc', 'bookingextension_oneclick'),
-    settings_helper::DEFAULT_BASE_URL,
-    PARAM_URL
-));
-
-$settingspage->add(new admin_setting_configpasswordunmask(
-    'bookingextension_oneclick/sharedsecret',
-    get_string('setting_sharedsecret', 'bookingextension_oneclick'),
-    get_string('setting_sharedsecret_desc', 'bookingextension_oneclick'),
-    ''
-));
-
-$settingspage->add(new admin_setting_configtext(
-    'bookingextension_oneclick/hostsuffix',
-    get_string('setting_hostsuffix', 'bookingextension_oneclick'),
-    get_string('setting_hostsuffix_desc', 'bookingextension_oneclick'),
-    settings_helper::DEFAULT_HOST_SUFFIX,
-    PARAM_HOST
-));
-
-// Where guests are sent to register before they can create their own instance.
-$settingspage->add(new admin_setting_configtext(
-    'bookingextension_oneclick/registerurl',
-    get_string('setting_registerurl', 'bookingextension_oneclick'),
-    get_string('setting_registerurl_desc', 'bookingextension_oneclick'),
-    settings_helper::DEFAULT_REGISTER_URL,
-    PARAM_RAW
-));
-
-// How the LLM "addresses" the skill (its action-oriented description).
-$settingspage->add(new admin_setting_configtextarea(
-    'bookingextension_oneclick/skilldescription',
-    get_string('setting_skilldescription', 'bookingextension_oneclick'),
-    get_string('setting_skilldescription_desc', 'bookingextension_oneclick'),
-    settings_helper::DEFAULT_SKILL_DESCRIPTION,
-    PARAM_RAW
-));
-
-// Templates the LLM can choose between: "templateid, description" per line.
-$settingspage->add(new admin_setting_configtextarea(
-    'bookingextension_oneclick/templates',
-    get_string('setting_templates', 'bookingextension_oneclick'),
-    get_string('setting_templates_desc', 'bookingextension_oneclick'),
-    "sport1, A booking site preconfigured for a sports club with courses and trainers.",
-    PARAM_RAW
-));
-
-// Hide every setting below the master switch while it is set to "No".
-foreach (['baseurl', 'sharedsecret', 'hostsuffix', 'registerurl', 'skilldescription', 'templates'] as $dependentsetting) {
-    $settingspage->hide_if(
-        'bookingextension_oneclick/' . $dependentsetting,
+    // Master enable switch for the skill.
+    $settingspage->add(new admin_setting_configcheckbox(
         'bookingextension_oneclick/enabled',
-        'notchecked'
-    );
+        get_string('setting_enabled', 'bookingextension_oneclick'),
+        get_string('setting_enabled_desc', 'bookingextension_oneclick'),
+        0
+    ));
+
+    // Provisioner connection.
+    $settingspage->add(new admin_setting_configtext(
+        'bookingextension_oneclick/baseurl',
+        get_string('setting_baseurl', 'bookingextension_oneclick'),
+        get_string('setting_baseurl_desc', 'bookingextension_oneclick'),
+        settings_helper::DEFAULT_BASE_URL,
+        PARAM_URL
+    ));
+
+    $settingspage->add(new admin_setting_configpasswordunmask(
+        'bookingextension_oneclick/sharedsecret',
+        get_string('setting_sharedsecret', 'bookingextension_oneclick'),
+        get_string('setting_sharedsecret_desc', 'bookingextension_oneclick'),
+        ''
+    ));
+
+    $settingspage->add(new admin_setting_configtext(
+        'bookingextension_oneclick/hostsuffix',
+        get_string('setting_hostsuffix', 'bookingextension_oneclick'),
+        get_string('setting_hostsuffix_desc', 'bookingextension_oneclick'),
+        settings_helper::DEFAULT_HOST_SUFFIX,
+        PARAM_HOST
+    ));
+
+    // Where guests are sent to register before they can create their own instance.
+    $settingspage->add(new admin_setting_configtext(
+        'bookingextension_oneclick/registerurl',
+        get_string('setting_registerurl', 'bookingextension_oneclick'),
+        get_string('setting_registerurl_desc', 'bookingextension_oneclick'),
+        settings_helper::DEFAULT_REGISTER_URL,
+        PARAM_RAW
+    ));
+
+    // How the LLM "addresses" the skill (its action-oriented description).
+    $settingspage->add(new admin_setting_configtextarea(
+        'bookingextension_oneclick/skilldescription',
+        get_string('setting_skilldescription', 'bookingextension_oneclick'),
+        get_string('setting_skilldescription_desc', 'bookingextension_oneclick'),
+        settings_helper::DEFAULT_SKILL_DESCRIPTION,
+        PARAM_RAW
+    ));
+
+    // Templates the LLM can choose between: "templateid, description" per line.
+    $settingspage->add(new admin_setting_configtextarea(
+        'bookingextension_oneclick/templates',
+        get_string('setting_templates', 'bookingextension_oneclick'),
+        get_string('setting_templates_desc', 'bookingextension_oneclick'),
+        "sport1, A booking site preconfigured for a sports club with courses and trainers.",
+        PARAM_RAW
+    ));
+
+    // Hide every setting below the master switch while it is set to "No".
+    foreach (['baseurl', 'sharedsecret', 'hostsuffix', 'registerurl', 'skilldescription', 'templates'] as $dependentsetting) {
+        $settingspage->hide_if(
+            'bookingextension_oneclick/' . $dependentsetting,
+            'bookingextension_oneclick/enabled',
+            'notchecked'
+        );
+    }
 }
 
 $adminroot->add('modbookingfolder', $settingspage);
